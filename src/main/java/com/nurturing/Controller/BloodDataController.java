@@ -9,22 +9,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin
 @Slf4j
 @RestController
-@RequestMapping("/bloodData")
+//@RequestMapping("/bloodData")
 public class BloodDataController {
 
     @Autowired
     private BloodDataService bloodDataService;
 
 
-    @GetMapping("/{user_id}")
-    public List<BloodData> getBloodData(@PathVariable long user_id) {
+//    @GetMapping("/{user_id}")
+//    public List<BloodData> getBloodData(@PathVariable long user_id) {
+//
+//        log.info("根据id查血糖：{}",user_id);
+//        List<BloodData> bloodData=bloodDataService.getById(user_id);
+//        return bloodData;
+//    }
 
+    @PostMapping("/bloodData")
+    public List<BloodData> getBloodData(@RequestBody Map<String, Long> request) {
+        long user_id=request.get("user_id");
         log.info("根据id查血糖：{}",user_id);
-        List<BloodData> bloodData=bloodDataService.getById(user_id);
-        return bloodData;
+        return bloodDataService.getById(user_id);
     }
 }
