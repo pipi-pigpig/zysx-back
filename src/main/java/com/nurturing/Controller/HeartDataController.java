@@ -14,14 +14,14 @@ import java.util.List;
 @CrossOrigin
 @Slf4j
 @RestController
-@RequestMapping("/heartData")
+//@RequestMapping("/heartData")
 public class HeartDataController {
 
     @Autowired
     private HeartDataService heartDataService;
 
-    @GetMapping("/{user_id}")
-    public List<HeartData> getHeartData(@PathVariable long user_id) {
+    @PostMapping("/heartData")
+    public List<HeartData> getHeartData(@RequestBody long user_id) {
 
         log.info("根据id查心率: {}", user_id);
         List<HeartData> heartData=heartDataService.getById(user_id);
