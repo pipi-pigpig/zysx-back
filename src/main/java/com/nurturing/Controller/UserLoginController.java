@@ -22,7 +22,7 @@ public class UserLoginController {
     private UserLoginService userLoginService;
 
     @PostMapping("/userInfo1")
-    public Result<User> login(@RequestParam String username,@RequestParam String password) {
+    public Result<User> login(@RequestBody String username,@RequestBody String password) {
         System.out.println(username+":"+password);
         User user = userLoginService.getUserInfo(username, password);
         if (user != null) {
