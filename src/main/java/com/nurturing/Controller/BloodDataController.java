@@ -31,7 +31,7 @@ public class BloodDataController {
 
     @PostMapping("/bloodData")
     public List<BloodData> getBloodData(@RequestBody Map<String, Long> request) {
-        long user_id=request.get("user_id");
+        Long user_id=request.get("user_id");
         log.info("根据id查血糖：{}",user_id);
         return bloodDataService.getById(user_id);
     }

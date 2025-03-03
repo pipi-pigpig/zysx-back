@@ -19,7 +19,7 @@ public class BloodDataServiceImpI implements BloodDataService {
 
 
     @Override
-    public List<BloodData> getById(long userId) {
+    public List<BloodData> getById(Long userId) {
 
         return bloodDataMapper.getById(userId);
 

@@ -11,7 +11,7 @@ import java.util.List;
 public interface OxygenDataMapper {
 
     @Select("select  * from bloodoxygendata where user_id=#{userId}")
-    List<OxygenData> getById(long userId);
+    List<OxygenData> getById(Long userId);
 
 
 

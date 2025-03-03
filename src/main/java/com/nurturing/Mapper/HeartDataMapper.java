@@ -10,5 +10,5 @@ import java.util.List;
 @Mapper
 public interface HeartDataMapper {
     @Select("select  * from heartratedata where user_id=#{userId}")
-    List<HeartData> getById(long userId);
+    List<HeartData> getById(Long userId);
 }

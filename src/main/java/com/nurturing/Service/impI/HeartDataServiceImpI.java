@@ -20,9 +20,10 @@ public class HeartDataServiceImpI implements HeartDataService {
 
 
     @Override
-    public List<HeartData> getById(long userId) {
+    public List<HeartData> getById(Long userId) {
 
-        List<HeartData> heartData=heartDataMapper.getById(userId);
-        return heartData;
+        return heartDataMapper.getById(userId);
     }
+
+
 }

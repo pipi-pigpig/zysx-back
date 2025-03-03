@@ -20,7 +20,7 @@ public class OxygenDataServiceImpI implements OxygenDataService {
 
 
     @Override
-    public List<OxygenData> getById(long userId) {
+    public List<OxygenData> getById(Long userId) {
 
         return oxygenDataMapper.getById(userId);
     }

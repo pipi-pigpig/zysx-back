@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface HeartDataService {
 
-    List<HeartData> getById(long userId);
+    List<HeartData> getById(Long userId);
 
 }
