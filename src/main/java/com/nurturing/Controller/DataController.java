@@ -8,10 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @CrossOrigin
 @Slf4j
 @RestController
-@RequestMapping("/data")
+//@RequestMapping("/data")
 public class DataController {
 
     @Autowired
@@ -25,5 +28,14 @@ public class DataController {
 //    DataVO dataVO=dataService.getByIdWithData(user_id);
 //        return Result.success(dataVO);
 //    }
+
+    @PostMapping("/data")
+    public DataVO getData(@RequestBody Map<String, Long> request) {
+
+        Long user_id= request.get("user_id");
+        log.info("根据id查总数据: {}", user_id);
+        return dataService.getByIdWithData(user_id);
+    }
+
 
 }

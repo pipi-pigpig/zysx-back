@@ -11,5 +11,5 @@ public interface BloodDataMapper {
 
 
     @Select("select  * from bloodsugardata where user_id=#{userId}")
-    List<BloodData> getById(long userId);
+    List<BloodData> getById(Long userId);
 }
