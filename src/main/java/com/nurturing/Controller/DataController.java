@@ -2,7 +2,9 @@ package com.nurturing.Controller;
 
 
 import com.nurturing.Service.DataService;
+import com.nurturing.Service.PersonalHistoryService;
 import com.nurturing.entity.DataVO;
+import com.nurturing.entity.PersonalHistory;
 import com.nurturing.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,8 @@ public class DataController {
 
     @Autowired
     private DataService dataService;
+    @Autowired
+    private PersonalHistoryService personalHistoryService;
 
 //    @GetMapping("/{user_id}")
 //    public Result<DataVO> getbyUserId(@PathVariable long user_id) {
@@ -37,5 +41,11 @@ public class DataController {
         return dataService.getByIdWithData(user_id);
     }
 
+    @PostMapping("/personal_history")
+    public PersonalHistory getPersonalHistory(@RequestBody Map<String, Long> request) {
+        Long user_id= request.get("user_id");
+        log.info("根据id查病史: {}", user_id);
+        return personalHistoryService.getById(user_id);
+    }
 
 }

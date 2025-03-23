@@ -18,6 +18,8 @@ public class User {
     private String password;
     private String avatar;
     private String age;
+    private String gender;
+    private String phone_number;
     private String height;
     private String weight;
 
