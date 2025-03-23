@@ -45,7 +45,7 @@ public class DataController {
     public PersonalHistory getPersonalHistory(@RequestBody Map<String, Long> request) {
         Long user_id= request.get("user_id");
         log.info("根据id查病史: {}", user_id);
-        return personalHistoryService.getById(user_id);
+        return personalHistoryService.getById(  user_id);
     }
 
 }

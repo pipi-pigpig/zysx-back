@@ -12,5 +12,6 @@ public interface PersonalHistoryMapper {
 
 
     @Select("select * from user_medical_history where user_id=#{userId}")
-    PersonalHistory getById(Long userId);
+    PersonalHistory getById(Long  userId);
+
 }
