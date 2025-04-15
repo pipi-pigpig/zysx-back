@@ -24,7 +24,7 @@ public class DataController {
     @Autowired
     private PersonalHistoryService personalHistoryService;
 
-//    @GetMapping("/{user_id}")
+//    @GetMapping("/{user_id}")666
 //    public Result<DataVO> getbyUserId(@PathVariable long user_id) {
 //
 //    log.info("根据id查数据:{}", user_id);
