@@ -26,7 +26,7 @@ import java.util.Map;
 
             // 2. 构造返回结果
             Map<String, Object> response = new HashMap<>();
-            response.put("intent", fastApiResponse.get("intent"));
+           // response.put("intent", fastApiResponse.get("intent"));
             response.put("answer", fastApiResponse.get("answer"));
             response.put("timestamp", LocalDateTime.now());
 

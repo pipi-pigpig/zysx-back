@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class FastAPIResponse {
-    private String intent;
+   // private String intent;
     private String answer;
-    private Double confidence;
+   // private Double confidence;
 }
