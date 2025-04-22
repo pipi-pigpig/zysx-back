@@ -14,22 +14,51 @@ import java.time.LocalDateTime;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
 public class HealthDataService {
     private final HealthDataMapper mapper;
     private final Queue<HealthData> buffer = new ConcurrentLinkedQueue<>();
-    private final AtomicInteger currentId = new AtomicInteger(1);
 
     @Scheduled(fixedRate = 5000)
     public void processBuffer() {
-        if (!buffer.isEmpty()) {
+        while (!buffer.isEmpty()) {
             HealthData data = buffer.poll();
-            int nextId = currentId.getAndUpdate(prev -> prev % 10 + 1);
-            data.setId(nextId);
-            mapper.replace(data);
+            if (data == null || data.getUserId() == null) continue;
+
+            // 处理血氧数据
+            processData(data,
+                    mapper::countBloodOxygenByUser,
+                    mapper::deleteOldestBloodOxygen,
+                    mapper::insertBloodOxygen);
+
+            // 处理心率数据
+            processData(data,
+                    mapper::countHeartRateByUser,
+                    mapper::deleteOldestHeartRate,
+                    mapper::insertHeartRate);
+
+            // 处理PI数据
+            processData(data,
+                    mapper::countPerfusionIndexByUser,
+                    mapper::deleteOldestPerfusionIndex,
+                    mapper::insertPerfusionIndex);
         }
+    }
+
+    private void processData(HealthData data,
+                             Function<Integer, Integer> countFunc,
+                             Consumer<Integer> deleteFunc,
+                             Consumer<HealthData> insertFunc) {
+        Integer userId = data.getUserId();
+        int count = countFunc.apply(userId);
+        if (count >= 10) {
+            deleteFunc.accept(userId);
+        }
+        insertFunc.accept(data);
     }
 
     public void addToBuffer(HealthData data) {
