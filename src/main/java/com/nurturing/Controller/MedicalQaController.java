@@ -19,10 +19,11 @@ import java.util.Map;
         private FastAPIClient fastAPIClient; // 封装FastAPI调用
 
         @PostMapping("/query")
-        public ResponseEntity<Map<String, Object>> handleQuery(@RequestBody MedicalQueryRequest request) {
+        public ResponseEntity<Map<String, Object>> handleQuery(@RequestBody Map<String, String> request) {
 
+            String question= request.get("question");
             // 1. 转发请求到FastAPI服务
-            Map<String, String> fastApiResponse = fastAPIClient.queryMedicalQA(request.getQuestion());
+            Map<String, String> fastApiResponse = fastAPIClient.queryMedicalQA(question);
 
             // 2. 构造返回结果
             Map<String, Object> response = new HashMap<>();
