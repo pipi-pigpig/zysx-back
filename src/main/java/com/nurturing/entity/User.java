@@ -16,6 +16,7 @@ public class User {
     private long user_id;
     private String username;
     private String password;
+    private String account;
     private String avatar;
     private String age;
     private String gender;
