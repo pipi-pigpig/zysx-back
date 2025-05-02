@@ -6,6 +6,7 @@ import com.nurturing.Service.UserLoginService;
 import com.nurturing.entity.LoginRequest;
 import com.nurturing.entity.User;
 import com.nurturing.result.Result;
+import com.nurturing.utils.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,9 @@ public class UserLoginController {
 
     @Autowired
     private UserLoginService userLoginService;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/userInfo1")
     public Result<User> login(@RequestBody String username,@RequestBody String password) {
@@ -40,6 +44,7 @@ public Result<User> login(@RequestBody LoginRequest request) {
     System.out.println(account+":"+password);
         User user = userLoginService.getUserInfo(account, password);
         if (user != null) {
+            user.setToken(jwtTokenUtil.generateToken(user.getUsername()));
             return Result.success(user);
         } else {
             return Result.error("用户不存在或密码错误");

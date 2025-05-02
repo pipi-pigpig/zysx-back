@@ -21,6 +21,11 @@ import java.util.Map;
         @PostMapping("/query")
         public ResponseEntity<Map<String, Object>> handleQuery(@RequestBody Map<String, String> request) {
 
+            //System.out.println("打印问题 "+request.getQuestion());
+
+//            String question= request.getQuestion();
+
+
             String question= request.get("question");
             // 1. 转发请求到FastAPI服务
             Map<String, String> fastApiResponse = fastAPIClient.queryMedicalQA(question);

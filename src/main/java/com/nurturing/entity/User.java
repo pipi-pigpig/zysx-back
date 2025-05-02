@@ -23,6 +23,6 @@ public class User {
     private String phone_number;
     private String height;
     private String weight;
-
+    private String token;
 
 }
