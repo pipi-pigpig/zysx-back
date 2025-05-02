@@ -13,8 +13,8 @@ import java.util.List;
 @Mapper
 public interface UserLoginMapper {
 
-    @Select("SELECT * FROM users WHERE username = #{username}")
-    User findByUsername(String username);
+    @Select("SELECT * FROM users WHERE account = #{account}")
+    User findByUsername(String account);
 
 
 //    @Select("select user_addr.address,addr_id from user_addr where user_id=#{userId}")

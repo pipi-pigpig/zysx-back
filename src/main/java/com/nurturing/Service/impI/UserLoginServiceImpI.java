@@ -18,8 +18,8 @@ public class UserLoginServiceImpI implements UserLoginService {
     private UserLoginMapper userLoginMapper;
 
     @Override
-    public User getUserInfo(String username, String password) {
-        User user = userLoginMapper.findByUsername(username);
+    public User getUserInfo(String account, String password) {
+        User user = userLoginMapper.findByUsername(account);
 
         if (user != null && user.getPassword().equals(password)) { // 这里可以放入加密校验逻辑
             return user;

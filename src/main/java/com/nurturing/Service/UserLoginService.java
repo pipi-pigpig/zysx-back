@@ -6,7 +6,7 @@ import com.nurturing.entity.User;
 import java.util.List;
 
 public interface UserLoginService {
-    User getUserInfo(String username, String password);
+    User getUserInfo(String account, String password);
 
 //    List<Address> getById(long userId);
 

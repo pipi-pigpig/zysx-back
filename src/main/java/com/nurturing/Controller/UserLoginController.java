@@ -34,11 +34,11 @@ public class UserLoginController {
     }
 @PostMapping("/userInfo")
 public Result<User> login(@RequestBody LoginRequest request) {
-    String username = request.getUsername();
+    String account = request.getAccount();
     String password = request.getPassword();
 
-    System.out.println(username+":"+password);
-        User user = userLoginService.getUserInfo(username, password);
+    System.out.println(account+":"+password);
+        User user = userLoginService.getUserInfo(account, password);
         if (user != null) {
             return Result.success(user);
         } else {

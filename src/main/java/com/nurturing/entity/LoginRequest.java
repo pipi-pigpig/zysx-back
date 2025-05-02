@@ -9,15 +9,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 // 定义一个 LoginRequest 类
 public class LoginRequest {
-    private String username;
+    private String account;
     private String password;
 
-    public String getUsername() {
-        return username;
+    public String getAccount() {
+        return account;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setAccount(String account) {
+        this.account = account;
     }
     // getters and setters
 
