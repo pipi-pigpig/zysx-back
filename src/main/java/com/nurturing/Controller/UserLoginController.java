@@ -1,6 +1,7 @@
 package com.nurturing.Controller;
 
 
+import com.nurturing.DTO.UserPageCenterDataDTO;
 import com.nurturing.Service.UserLoginService;
 //import com.nurturing.entity.Address;
 import com.nurturing.entity.LoginRequest;
@@ -25,17 +26,17 @@ public class UserLoginController {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    @PostMapping("/userInfo1")
-    public Result<User> login(@RequestBody String username,@RequestBody String password) {
-        System.out.println(username+":"+password);
-        User user = userLoginService.getUserInfo(username, password);
-        if (user != null) {
-            return Result.success(user);
-        } else {
-            return Result.error("用户不存在或密码错误");
-        }
-
-    }
+//    @PostMapping("/userInfo1")
+//    public Result<User> login(@RequestBody String username,@RequestBody String password) {
+//        System.out.println(username+":"+password);
+//        User user = userLoginService.getUserInfo(username, password);
+//        if (user != null) {
+//            return Result.success(user);
+//        } else {
+//            return Result.error("用户不存在或密码错误");
+//        }
+//
+//    }
 @PostMapping("/userInfo")
 public Result<User> login(@RequestBody LoginRequest request) {
     String account = request.getAccount();
@@ -52,16 +53,6 @@ public Result<User> login(@RequestBody LoginRequest request) {
 
 }
 
-
-
-
-//    @GetMapping("/{user_id}")
-//    public List<Address> getAddress(@PathVariable long user_id) {
-//
-//        List<Address> addresses=userLoginService.getById(user_id);
-//        return addresses;
-//    }
-
     @PostMapping
     public  Result updateUser(@RequestBody long user_id,@RequestBody String username) {
 
@@ -70,11 +61,36 @@ public Result<User> login(@RequestBody LoginRequest request) {
         return Result.success();
     }
 
-//    @DeleteMapping("/{addr_id}")
-//    public Result deleteAttraction(@PathVariable long addr_id) {
-//
-//        userLoginService.deleteAddr(addr_id);
-//        return Result.success();
-//    }
+    /*
+    fetchUserpagecenterdata
+     * 保存用户的基本信息
+     * 请求参数：
+     * user_id:string
+     * Username:string
+     * gender:string
+     * Age:int
+     * phone_number:string
+     * Height:Int
+     * Weight:Int
+     * family_history:string
+     * allergy_history:string
+     * past_medical_history:string
+     * surgical_history:string
+     * medical_compliance:string
+     * 响应参数：
+     * 返回成功或者失败
+     */
+    @PostMapping("/fetchUserPageCenterData")
+    public String fetchUserPageCenterData(@RequestBody UserPageCenterDataDTO userPageCenterDataDTO) {
 
+
+        try {
+            log.info("更新用户信息:{}", userPageCenterDataDTO);
+            userLoginService.fetchUserPageCenterData(userPageCenterDataDTO);
+            return "更新用户信息成功";
+        } catch (Exception e) {
+            return "更新用户信息失败";
+        }
+
+    }
 }

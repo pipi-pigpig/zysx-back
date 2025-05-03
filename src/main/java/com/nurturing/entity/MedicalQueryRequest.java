@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@lombok.Data
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class MedicalQueryRequest {
