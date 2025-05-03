@@ -14,6 +14,6 @@ public class PersonalHistory {
     private String allergy_history;
     private String past_medical_history;
     private String surgical_history;
-    private String medication_compliance;
+    private String medical_compliance;
 
 }
