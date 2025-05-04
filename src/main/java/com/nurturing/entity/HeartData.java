@@ -17,6 +17,6 @@ public class HeartData {
     private long user_id;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime Date;
+    private LocalDateTime created_at;
     private String heartData;
 }

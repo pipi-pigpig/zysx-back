@@ -14,6 +14,6 @@ public class PiData {
     private long PerfusionIndexID;
     private long user_id;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime Date;
+    private LocalDateTime created_at;
     private String piData;
 }
