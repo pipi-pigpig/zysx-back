@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class OxygenData {
     private long BloodOxygenID;
     private long user_id;
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH-mm-ss")
     private LocalDateTime created_at;
     private String oxygenData;
 }
