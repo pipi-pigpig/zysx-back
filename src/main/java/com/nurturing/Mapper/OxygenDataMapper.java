@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface OxygenDataMapper {
 
-    @Select("select  * from bloodoxygendata where user_id=#{userId}")
+    @Select("select  * from bloodoxygendata where user_id=#{userId} order by created_at  ")
     List<OxygenData> getById(Long userId);
 
 

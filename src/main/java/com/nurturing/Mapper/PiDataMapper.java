@@ -9,6 +9,6 @@ import java.util.List;
 
 @Mapper
 public interface PiDataMapper {
-    @Select("select  * from perfusionindexdata where user_id=#{userId}")
+    @Select("select  * from perfusionindexdata where user_id=#{userId}  order by created_at")
     List<PiData> getById(Long userId);
 }
