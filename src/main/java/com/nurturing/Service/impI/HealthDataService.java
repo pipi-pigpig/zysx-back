@@ -4,6 +4,9 @@ import com.nurturing.Mapper.HealthDataMapper;
 import com.nurturing.entity.HealthData;
 
 
+import com.nurturing.entity.HeartData;
+import com.nurturing.entity.OxygenData;
+import com.nurturing.entity.PiData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -22,43 +25,40 @@ import java.util.function.Function;
 public class HealthDataService {
     private final HealthDataMapper mapper;
     private final Queue<HealthData> buffer = new ConcurrentLinkedQueue<>();
+    private final AtomicInteger currentId = new AtomicInteger(1);
 
     @Scheduled(fixedRate = 5000)
     public void processBuffer() {
-        while (!buffer.isEmpty()) {
+        if (!buffer.isEmpty()) {
             HealthData data = buffer.poll();
-            if (data == null || data.getUserId() == null) continue;
+            System.out.println(data);
 
-            // 处理血氧数据
-            processData(data,
-                    mapper::countBloodOxygenByUser,
-                    mapper::deleteOldestBloodOxygen,
-                    mapper::insertBloodOxygen);
+            int nextId = currentId.getAndUpdate(prev -> prev % 10 + 1);
+            data.setId(nextId);
+            mapper.replace(data);
 
-            // 处理心率数据
-            processData(data,
-                    mapper::countHeartRateByUser,
-                    mapper::deleteOldestHeartRate,
-                    mapper::insertHeartRate);
+            OxygenData oxygenData = new OxygenData();
+            oxygenData.setUser_id(data.getUser_id());
+            oxygenData.setCreated_at(data.getRecordTime());
+            oxygenData.setOxygenData( data.getSpo2());
+            oxygenData.setBloodOxygenID(nextId);
+            mapper.replaceOxygen(oxygenData);
 
-            // 处理PI数据
-            processData(data,
-                    mapper::countPerfusionIndexByUser,
-                    mapper::deleteOldestPerfusionIndex,
-                    mapper::insertPerfusionIndex);
+            HeartData heartData = new HeartData();
+            heartData.setUser_id(data.getUser_id());
+            heartData.setCreated_at(data.getRecordTime());
+            heartData.setHeartData(data.getBmp());
+            heartData.setHeartRateID(nextId);
+            mapper.replaceHeart(heartData);
+
+            PiData piData = new PiData();
+            piData.setUser_id(data.getUser_id());
+            piData.setCreated_at(data.getRecordTime());
+            piData.setPiData(data.getPi());
+            piData.setPerfusionIndexID(nextId);
+            mapper.replacePi(piData);
+
         }
-    }
-
-    private void processData(HealthData data,
-                             Function<Integer, Integer> countFunc,
-                             Consumer<Integer> deleteFunc,
-                             Consumer<HealthData> insertFunc) {
-        Integer userId = data.getUserId();
-        int count = countFunc.apply(userId);
-        if (count >= 10) {
-            deleteFunc.accept(userId);
-        }
-        insertFunc.accept(data);
     }
 
     public void addToBuffer(HealthData data) {

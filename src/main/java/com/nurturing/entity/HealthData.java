@@ -10,13 +10,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HealthData {
-    //private Integer id;
-    private Integer userId;
+    private Integer id;
     private int spo2;
     private int bmp;
     private int pi;
     private String deviceCode;
     private String mac;
     private LocalDateTime recordTime;
-
+    private int user_id;
 }

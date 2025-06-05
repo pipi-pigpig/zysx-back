@@ -1,46 +1,26 @@
 package com.nurturing.Mapper;
 
 import com.nurturing.entity.HealthData;
+import com.nurturing.entity.HeartData;
+import com.nurturing.entity.OxygenData;
+import com.nurturing.entity.PiData;
 import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface HealthDataMapper {
-    // 血氧数据操作
-    @Insert("INSERT INTO bloodoxygendata (user_id, created_at, oxygenData) " +
-            "VALUES (#{userId}, #{recordTime}, #{spo2})")
-    void insertBloodOxygen(HealthData data);
+    @Insert("REPLACE INTO health_data(id, spo2, bmp, pi, device_code, mac, record_time,user_id) " +
+            "VALUES(#{id}, #{spo2}, #{bmp}, #{pi}, #{deviceCode}, #{mac}, #{recordTime},#{user_id})")
+    void replace(HealthData data);
 
-    @Delete("DELETE FROM bloodoxygendata WHERE user_id = #{userId} AND created_at = " +
-            "(SELECT created_at FROM (SELECT created_at FROM bloodoxygendata WHERE user_id = #{userId} " +
-            "ORDER BY created_at ASC LIMIT 1) AS tmp)")
-    void deleteOldestBloodOxygen(Integer userId);
+    @Insert("REPLACE INTO bloodoxygendata(BloodOxygenID, user_id, created_at, oxygenData) VALUES " +
+            "(#{BloodOxygenID},#{user_id},#{created_at},#{oxygenData})")
+    void replaceOxygen(OxygenData oxygenData);
 
-    @Select("SELECT COUNT(*) FROM bloodoxygendata WHERE user_id = #{userId}")
-    int countBloodOxygenByUser(Integer userId);
+    @Insert("REPLACE INTO heartratedata(HeartRateID, user_id, created_at, heartData) VALUES " +
+            "(#{HeartRateID},#{user_id},#{created_at},#{heartData})")
+    void replaceHeart(HeartData heartData);
 
-    // 心率数据操作
-    @Insert("INSERT INTO heartratedata (user_id, created_at, heartData) " +
-            "VALUES (#{userId}, #{recordTime}, #{bmp})")
-    void insertHeartRate(HealthData data);
-
-    @Delete("DELETE FROM heartratedata WHERE user_id = #{userId} AND created_at = " +
-            "(SELECT created_at FROM (SELECT created_at FROM heartratedata WHERE user_id = #{userId} " +
-            "ORDER BY created_at ASC LIMIT 1) AS tmp)")
-    void deleteOldestHeartRate(Integer userId);
-
-    @Select("SELECT COUNT(*) FROM heartratedata WHERE user_id = #{userId}")
-    int countHeartRateByUser(Integer userId);
-
-    // PI 数据操作
-    @Insert("INSERT INTO perfusionindexdata (user_id, created_at, piData) " +
-            "VALUES (#{userId}, #{recordTime}, #{pi})")
-    void insertPerfusionIndex(HealthData data);
-
-    @Delete("DELETE FROM perfusionindexdata WHERE user_id = #{userId} AND created_at = " +
-            "(SELECT created_at FROM (SELECT created_at FROM perfusionindexdata WHERE user_id = #{userId} " +
-            "ORDER BY created_at ASC LIMIT 1) AS tmp)")
-    void deleteOldestPerfusionIndex(Integer userId);
-
-    @Select("SELECT COUNT(*) FROM perfusionindexdata WHERE user_id = #{userId}")
-    int countPerfusionIndexByUser(Integer userId);
+    @Insert("REPLACE INTO perfusionindexdata(PerfusionIndexID, user_id, created_at, piData) VALUES " +
+            "(#{PerfusionIndexID},#{user_id},#{created_at},#{piData})")
+    void replacePi(PiData piData);
 }

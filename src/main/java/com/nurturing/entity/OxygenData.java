@@ -15,5 +15,5 @@ public class OxygenData {
     private long user_id;
     @JsonFormat(pattern = "yyyy-MM-dd HH-mm-ss")
     private LocalDateTime created_at;
-    private String oxygenData;
+    private int oxygenData;
 }

@@ -18,5 +18,5 @@ public class HeartData {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH-mm-ss")
     private LocalDateTime created_at;
-    private String heartData;
+    private int heartData;
 }
