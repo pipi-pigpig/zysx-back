@@ -2,6 +2,7 @@ package com.nurturing.Service.impI;
 
 import com.nurturing.DTO.MedicalQueryInput;
 import com.nurturing.DTO.QueryResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,7 +14,9 @@ import org.springframework.web.client.RestClientException;
 @Service
 public class MedicalQAService {
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String apiUrl = "http://120.26.14.104:8000/query"; // 替换实际IP
+
+    @Value("${fastapi.url}")
+    private String apiUrl ; // 替换实际IP
 
     public String queryMedicalQA(String question) {
         try {
@@ -26,7 +29,7 @@ public class MedicalQAService {
             HttpEntity<MedicalQueryInput> entity = new HttpEntity<>(request, headers);
 
             ResponseEntity<QueryResponse> response = restTemplate.postForEntity(
-                    apiUrl,
+                    apiUrl+"/query",
                     entity,  // 使用HttpEntity包装请求体和Header
                     QueryResponse.class
             );
