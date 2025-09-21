@@ -13,7 +13,7 @@ import org.springframework.web.client.RestClientException;
 @Service
 public class MedicalQAService {
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String apiUrl = "http://120.26.14.104:8000/query"; // 替换实际IP
+    private final String apiUrl = "http://192.168.16.94:8000/query"; // 替换实际IP
 
     public String queryMedicalQA(String question) {
         try {
