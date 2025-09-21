@@ -18,9 +18,5 @@ try {
 } catch (MqttException e) {
     e.printStackTrace();
 }
-
-
 }
-
-
 }

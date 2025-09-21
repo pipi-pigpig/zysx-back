@@ -26,12 +26,5 @@ public class PiDataController {
         return piDataService.getById(user_id);
     }
 
-//    @PostMapping("/api/medical/query")
-//    public void handleQuery(@RequestBody Map<String, String> request) {
-//        String question= request.get("question");
-//
-//        System.out.println("测试："+question);
-//
-//
-//    }
+
 }
