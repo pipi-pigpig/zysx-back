@@ -2,6 +2,8 @@
 package com.nurturing.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.nurturing.Service.HeartDataService;
 import com.nurturing.Service.OxygenDataService;
 import com.nurturing.Service.PiDataService;
@@ -11,7 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +27,22 @@ public class DataWebSocketHandler {
     private static HeartDataService heartDataService;
     private static OxygenDataService oxygenDataService;
     private static PiDataService piDataService;
+
+    // 配置支持LocalDateTime的ObjectMapper
     private static ObjectMapper objectMapper = new ObjectMapper();
+
+    static {
+        // 注册JavaTimeModule
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        // 可选：自定义LocalDateTime序列化格式
+        javaTimeModule.addSerializer(LocalDateTime.class,
+                new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        objectMapper.registerModule(javaTimeModule);
+
+        // 或者使用以下配置来将LocalDateTime序列化为时间戳
+        // objectMapper.registerModule(new JavaTimeModule());
+        // objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
 
     @Autowired
     public void setServices(
@@ -48,11 +66,12 @@ public class DataWebSocketHandler {
         Map<String, Object> request = objectMapper.readValue(message, Map.class);
         String type = (String) request.get("type");
         Long userId = ((Number) request.get("user_id")).longValue();
-
+        System.out.println(type+":"+userId);
         Object result = null;
 
         switch (type) {
             case "heart":
+                System.out.println("heart");
                 result = heartDataService.getById(userId);
                 break;
             case "oxygen":
@@ -67,6 +86,8 @@ public class DataWebSocketHandler {
                 }};
         }
 
+        // 使用配置好的ObjectMapper序列化
+        System.out.println("result:"+result);
         session.getBasicRemote().sendText(objectMapper.writeValueAsString(result));
     }
 

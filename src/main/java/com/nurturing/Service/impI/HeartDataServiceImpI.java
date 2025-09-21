@@ -21,7 +21,8 @@ public class HeartDataServiceImpI implements HeartDataService {
 
     @Override
     public List<HeartData> getById(Long userId) {
-
+        System.out.println("getById:"+userId);
+        System.out.println("return:"+heartDataMapper.getById(userId));
         return heartDataMapper.getById(userId);
     }
 
