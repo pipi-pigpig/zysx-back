@@ -5,25 +5,21 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 @Component
 public class JwtTokenUtil {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    // 使用JWT库生成的安全密钥
+    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
-    @Value("${jwt.expiration}")
-    private Long expiration;
-
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
-    }
+    private Long expiration = 86400L; // 24小时
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
@@ -40,13 +36,12 @@ public class JwtTokenUtil {
 
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    // 修正：确保这个方法接受token和username两个参数
     public Boolean validateToken(String token, String username) {
         final String tokenUsername = getUsernameFromToken(token);
         return (tokenUsername.equals(username) && !isTokenExpired(token));
@@ -57,13 +52,18 @@ public class JwtTokenUtil {
         return expiration.before(new Date());
     }
 
-    // 生成token的方法
     public String generateToken(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, username);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
-                .setSubject(username)
+                .setClaims(claims)
+                .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
 }
