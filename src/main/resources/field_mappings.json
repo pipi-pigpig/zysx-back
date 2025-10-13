@@ -1,0 +1,33 @@
+{
+  "BLE_oximeter": {
+    "allowedMacs": [
+      "00:66:00:05:8B:9E",
+      "AA:BB:CC:DD:EE:FF"
+    ],
+    "fieldMappings": {
+      "bmp": "HEART",
+      "spo2": "OXYGEN",
+      "pi": "PI"
+    }
+  },
+  "BLE_blood_pressure": {
+    "allowedMacs": [
+      "11:22:33:44:55:66"
+    ],
+    "fieldMappings": {
+      "sys": "BLOOD",
+      "dia": "BLOOD",
+      "pulse": "HEART"
+    }
+  },
+  "BLE_sleep_monitor": {
+    "allowedMacs": [
+      "77:88:99:AA:BB:CC"
+    ],
+    "fieldMappings": {
+      "sleep_stage": "SLEEP",
+      "sleep_duration": "SLEEP"
+    }
+  }
+
+}
