@@ -1,9 +1,8 @@
 package com.nurturing.Controller;
 
 
-import com.nurturing.Service.OxygenDataService;
-import com.nurturing.entity.HeartData;
-import com.nurturing.entity.OxygenData;
+import com.nurturing.Service.BloodOxygenService;
+import com.nurturing.entity.BloodOxygen;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,16 +14,16 @@ import java.util.Map;
 @Slf4j
 @RestController
 //@RequestMapping("/oxygenData")
-public class OxygenDataController {
+public class BloodOxygenController {
 
     @Autowired
-    private OxygenDataService oxygenDataService;
+    private BloodOxygenService bloodOxygenService;
 
     @PostMapping("/oxygenData")
-    public List<OxygenData> getOxygenData(@RequestBody Map<String, Long> request) {
+    public List<BloodOxygen> getOxygenData(@RequestBody Map<String, Long> request) {
         Long user_id= request.get("user_id");
         log.info("根据id查血氧: {}", user_id);
-        return oxygenDataService.getById(user_id);
+        return bloodOxygenService.getById(user_id);
     }
 
 

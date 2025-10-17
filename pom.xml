@@ -31,10 +31,17 @@
         <java.version>21</java.version>
     </properties>
     <dependencies>
+<!--        <dependency>-->
+<!--            <groupId>org.mybatis.spring.boot</groupId>-->
+<!--            <artifactId>mybatis-spring-boot-starter</artifactId>-->
+<!--            <version>3.0.3</version>-->
+<!--        </dependency>-->
+
+        <!-- MyBatis-Plus Spring Boot Starter -->
         <dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
-            <version>3.0.3</version>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId> <!-- 注意：根据你的Spring Boot版本选择starter -->
+            <version>3.5.7</version> <!-- 请根据需要选择版本 -->
         </dependency>
 
         <dependency>

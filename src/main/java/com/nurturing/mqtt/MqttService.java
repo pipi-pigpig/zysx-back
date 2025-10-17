@@ -2,6 +2,11 @@ package com.nurturing.mqtt;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nurturing.Service.*;
+import com.nurturing.entity.BloodOxygen;
+import com.nurturing.entity.HeartRate;
+import com.nurturing.entity.PerfusionIndex;
+import com.nurturing.entity.SleepData;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
@@ -11,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -46,7 +53,23 @@ public class MqttService {
     @Value("#{'${mqtt.topic.device.data}'.split(',')}") // 如果有多个主题，按逗号分割
     private String[] topicsToSubscribe;
 
+    @Autowired
+    private BloodOxygenService bloodOxygenService;
 
+    @Autowired
+    private BloodPressureService bloodPressureService;
+
+    @Autowired
+    private BloodSugarService bloodSugarService;
+
+    @Autowired
+    private HeartRateService heartRateService;
+
+    @Autowired
+    private PerfusionIndexService perfusionIndexService;
+
+    @Autowired
+    private SleepDataService sleepDataService;
 
     @Autowired
     private FieldMappingService fieldMappingService;
@@ -203,27 +226,33 @@ public class MqttService {
                     // 根据健康数据类型调用相应的服务方法
                     switch (dataType) {
                         case BLOOD:
-                            log.info("BLOOD");
+//                            log.info("BLOOD");
+                            sleepDataService.saveFromMQTT(new SleepData(new BigDecimal(rawFieldValue.toString())),deviceMac);
                             log.debug("设备 [{}] (MAC: {}) 的血圧数据已通过服务层方法存储。", deviceName, deviceMac);
                             break;
                         case HEART:
-                            log.info("HEART");
+//                            log.info("HEART");
+                            heartRateService.saveFromMQTT(new HeartRate(new BigDecimal(rawFieldValue.toString())),deviceMac);
                             log.debug("设备 [{}] (MAC: {}) 的心率数据已通过服务层方法存储。", deviceName, deviceMac);
                             break;
                         case OXYGEN:
-                            log.info("OXYGEN");
+//                            log.info("OXYGEN");
+                            bloodOxygenService.saveFromMQTT(new BloodOxygen(new BigDecimal(rawFieldValue.toString())),deviceMac);
                             log.debug("设备 [{}] (MAC: {}) 的血氧数据已通过服务层方法存储。", deviceName, deviceMac);
                             break;
                         case PI:
-                            log.info("PI");
+//                            log.info("PI");
+                            perfusionIndexService.saveFromMQTT(new PerfusionIndex(new BigDecimal(rawFieldValue.toString())),deviceMac);
                             log.debug("设备 [{}] (MAC: {}) 的灌注指数数据已通过服务层方法存储。", deviceName, deviceMac);
                             break;
                         case PRESSURE:
-                            log.info("PRESSURE");
+                            log.info("PRESSURE---未处理");
+//                            bloodPressureService.saveFromMQTT();
                             log.debug("设备 [{}] (MAC: {}) 的压力数据已通过服务层方法存储。", deviceName, deviceMac);
                             break;
                         case SLEEP:
-                            log.info("SLEEP");
+//                            log.info("SLEEP");
+                            sleepDataService.saveFromMQTT(new SleepData(new BigDecimal(rawFieldValue.toString())),deviceMac);
                             log.debug("设备 [{}] (MAC: {}) 的睡眠数据已通过服务层方法存储。", deviceName, deviceMac);
                             break;
                         default:

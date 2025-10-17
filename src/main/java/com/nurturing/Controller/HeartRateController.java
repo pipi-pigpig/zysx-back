@@ -1,15 +1,12 @@
 package com.nurturing.Controller;
 
 
-import com.nurturing.Service.HeartDataService;
-import com.nurturing.entity.HeartData;
-import com.nurturing.result.Result;
+import com.nurturing.Service.HeartRateService;
+import com.nurturing.entity.HeartRate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,25 +14,25 @@ import java.util.Map;
 @Slf4j
 @RestController
 //@RequestMapping("/heartData")
-public class HeartDataController {
+public class HeartRateController {
 
     @Autowired
-    private HeartDataService heartDataService;
+    private HeartRateService heartRateService;
 //
 //    @PostMapping("/heartData")
 //    public List<HeartData> getHeartData(@RequestBody long user_id) {
 //
 //        log.info("根据id查心率: {}", user_id);
-//        List<HeartData> heartData=heartDataService.getById(user_id);
+//        List<HeartData> heartData=heartRateService.getById(user_id);
 //        return heartData;
 //    }
 
     @PostMapping("/heartData")
-    public List<HeartData> getHeartData(@RequestBody Map<String, Long> request) {
+    public List<HeartRate> getHeartData(@RequestBody Map<String, Long> request) {
        Long user_id= request.get("user_id");
         log.info("根据id查心率: {}", user_id);
 
-        return heartDataService.getById(user_id);
+        return heartRateService.getById(user_id);
     }
 
 //    @PostMapping("/heartData")
@@ -43,7 +40,7 @@ public class HeartDataController {
 //        try {
 //            Long user_id = Long.parseLong(request.get("user_id").toString());
 //            log.info("根据id查心率: {}", user_id);
-//            List<HeartData> data = heartDataService.getById(user_id);
+//            List<HeartData> data = heartRateService.getById(user_id);
 //            return ResponseEntity.ok(data);
 //        } catch (NumberFormatException e) {
 //            log.error("参数格式错误: {}", request);

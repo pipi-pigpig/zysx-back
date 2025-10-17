@@ -2,7 +2,7 @@
   "BLE_oximeter": {
     "allowedMacs": [
       "00:66:00:05:8B:9E",
-      "AA:BB:CC:DD:EE:FF"
+      "00:66:00:04:05:E6"
     ],
     "fieldMappings": {
       "bmp": "HEART",

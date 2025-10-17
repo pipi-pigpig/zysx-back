@@ -13,21 +13,21 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class DataServiceImpI implements DataService {
+public class DataServiceImpl implements  DataService {
 
 
     @Autowired
     private DataMapper dataMapper;
     @Autowired
-    private BloodDataMapper bloodDataMapper;
+    private BloodSugarMapper bloodSugarMapper;
     @Autowired
-    private HeartDataMapper heartDataMapper;
+    private HeartRateMapper heartRateMapper;
     @Autowired
-    private OxygenDataMapper oxygenDataMapper;
+    private BloodOxygenMapper bloodOxygenMapper;
     @Autowired
-    private  PiDataMapper piDataMapper;
+    private PerfusionIndexMapper perfusionIndexMapper;
     @Autowired
-    private  PressureDataMapper pressureDataMapper;
+    private BloodPressureMapper bloodPressureMapper;
     @Autowired
     private  SleepDataMapper sleepDataMapper;
 
@@ -39,20 +39,20 @@ public class DataServiceImpI implements DataService {
     DataVO dataVO = new DataVO();
     BeanUtils.copyProperties(user,dataVO);
 
-    List<BloodData> bloodData= bloodDataMapper.getById(userId);
+    List<BloodSugar> bloodData= bloodSugarMapper.getById(userId);
     dataVO.setBloodData(bloodData);
 
-    List<HeartData> heartData =heartDataMapper.getById(userId);
+    List<HeartRate> heartData = heartRateMapper.getById(userId);
     dataVO.setHeartData(heartData);
 
-    List<OxygenData> oxygenData =oxygenDataMapper.getById(userId);
-    dataVO.setOxygenData(oxygenData);
+    List<BloodOxygen> bloodOxygenData = bloodOxygenMapper.getById(userId);
+    dataVO.setBloodOxygenData(bloodOxygenData);
 
-    List<PiData> piData =piDataMapper.getById(userId);
+    List<PerfusionIndex> piData = perfusionIndexMapper.getById(userId);
     dataVO.setPiData(piData);
 
-    List<PressureData> pressureData =pressureDataMapper.getById(userId);
-    dataVO.setPressureData(pressureData);
+    List<BloodPressure> bloodPressureData = bloodPressureMapper.getById(userId);
+    dataVO.setBloodPressureData(bloodPressureData);
 
     List<SleepData> sleepData =sleepDataMapper.getById(userId);
     dataVO.setSleepData(sleepData);
