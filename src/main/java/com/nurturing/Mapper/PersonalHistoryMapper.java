@@ -11,7 +11,7 @@ import java.util.List;
 public interface PersonalHistoryMapper {
 
 
-    @Select("select * from user_medical_history where user_id=#{userId}")
+    @Select("select id,family_history,allergy_history,past_medical_history,surgical_history,medical_compliance from users where id=#{userId}")
     PersonalHistory getById(Long  userId);
 
 }

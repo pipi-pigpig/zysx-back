@@ -45,7 +45,7 @@ public Result<User> login(@RequestBody LoginRequest request) {
     System.out.println(account+":"+password);
         User user = userLoginService.getUserInfo(account, password);
         if (user != null) {
-            user.setToken(jwtTokenUtil.generateToken(user.getUsername()));
+            //user.setToken(jwtTokenUtil.generateToken(user.getUsername()));
             return Result.success(user);
         } else {
             return Result.error("用户不存在或密码错误");

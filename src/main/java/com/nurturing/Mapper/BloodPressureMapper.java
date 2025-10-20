@@ -15,7 +15,7 @@ import java.util.List;
 @Mapper
 public interface BloodPressureMapper extends BaseMapper<BloodPressure> {
 
-    @Select("select * from bloodpressuredata where user_id=#{userId}")
+    @Select("select * from blood_pressure_data where user_id=#{userId}")
     List<BloodPressure> getById(Long userId);
 
     @Insert("insert into blood_pressure_data(user_id, systolic_bp, diastolic_bp, record_time) select user_id ,#{systolicBp},#{diastolicBp},#{recordTime} from equipment where equipment.mac=#{mac}")

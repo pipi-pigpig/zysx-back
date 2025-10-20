@@ -14,7 +14,7 @@ import java.util.List;
 
 @Mapper
 public interface PerfusionIndexMapper extends BaseMapper<PerfusionIndex> {
-    @Select("select  * from perfusionindexdata where user_id=#{userId}  order by created_at")
+    @Select("select  * from perfusion_index_data where user_id=#{userId}  order by record_time")
     List<PerfusionIndex> getById(Long userId);
 
     @Insert("insert into perfusion_index_data(user_id, pi_data, record_time) select user_id ,#{piData},#{recordTime} from equipment where equipment.mac=#{mac}")

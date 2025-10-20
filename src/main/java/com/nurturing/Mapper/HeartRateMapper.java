@@ -14,7 +14,7 @@ import java.util.List;
 
 @Mapper
 public interface HeartRateMapper extends BaseMapper<HeartRate> {
-    @Select("select  * from heartratedata where user_id=#{userId} order by created_at")
+    @Select("select  * from heart_rate_data where user_id=#{userId} order by record_time")
     List<HeartRate> getById(Long userId);
 
     @Insert("insert into heart_rate_data(user_id, heart_data, record_time) select user_id,#{heartData},#{recordTime} from equipment where equipment.mac=#{mac}")

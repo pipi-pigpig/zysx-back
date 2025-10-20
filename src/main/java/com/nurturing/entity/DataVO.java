@@ -4,6 +4,7 @@ package com.nurturing.entity;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,13 +13,14 @@ import java.util.List;
 @AllArgsConstructor
 public class DataVO {
 
-    private long user_id;
+    private long id;
     private String username;
     private String password;
+    private String account;
     private String avatar;
-    private String age;
-    private String height;
-    private String weight;
+    private String gender;
+    private BigDecimal height;
+    private BigDecimal weight;
 
     private List<BloodSugar> bloodData=new ArrayList<>();
     private List<HeartRate> heartData=new ArrayList<>() ;

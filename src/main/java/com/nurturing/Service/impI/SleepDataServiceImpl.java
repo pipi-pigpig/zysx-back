@@ -31,6 +31,6 @@ public class SleepDataServiceImpl extends ServiceImpl<SleepDataMapper,SleepData>
     @Override
     @Transactional
     public void saveFromMQTT(SleepData sleepData, String mac) {
-        sleepDataMapper.inserByMac(sleepData.getSleepData(),mac, LocalDateTime.now());
+        sleepDataMapper.insertByMac(sleepData.getSleepData(),mac, LocalDateTime.now());
     }
 }

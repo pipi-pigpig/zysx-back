@@ -15,7 +15,7 @@ import java.util.List;
 public interface BloodSugarMapper extends BaseMapper<BloodSugar> {
 
 
-    @Select("select  * from bloodsugardata where user_id=#{userId}")
+    @Select("select  * from blood_sugar_data where user_id=#{userId}")
     List<BloodSugar> getById(Long userId);
 
     @Insert("insert into blood_sugar_data(user_id, blood_data, record_time) select user_Id,#{bloodData},#{recordTime} from equipment where equipment.mac=#{mac}")

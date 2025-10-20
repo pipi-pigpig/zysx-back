@@ -18,6 +18,9 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
 
     @Override
     public PersonalHistory getById(Long userId) {
+
+        System.out.println(userId);
+        System.out.println(personalHistoryMapper.getById(userId));
         return personalHistoryMapper.getById(userId);
     }
 }
