@@ -15,19 +15,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("blood_oxygen_data")
-public class SleepData {
+public class BloodOxygen {
 
     @TableId(type = IdType.AUTO)
     private long id;
 
     private long userId;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH-mm-ss")
     private LocalDateTime recordTime;
 
-    private BigDecimal sleepData;
+    private BigDecimal oxygenData;
 
-    public SleepData(BigDecimal sleepData) {
-        this.sleepData = sleepData;
+    public BloodOxygen(BigDecimal oxygenData) {
+        this.oxygenData = oxygenData;
     }
 }

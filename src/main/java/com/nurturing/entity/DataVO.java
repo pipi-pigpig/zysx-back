@@ -4,7 +4,6 @@ package com.nurturing.entity;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,11 +20,11 @@ public class DataVO {
     private String height;
     private String weight;
 
-    private List<BloodData> bloodData=new ArrayList<>();
-    private List<HeartData> heartData=new ArrayList<>() ;
-    private List<OxygenData> oxygenData=new ArrayList<>();
-    private List<PiData> piData=new ArrayList<>();
-    private List<PressureData> pressureData=new ArrayList<>();
+    private List<BloodSugar> bloodData=new ArrayList<>();
+    private List<HeartRate> heartData=new ArrayList<>() ;
+    private List<BloodOxygen> bloodOxygenData =new ArrayList<>();
+    private List<PerfusionIndex> piData=new ArrayList<>();
+    private List<BloodPressure> bloodPressureData =new ArrayList<>();
     private List<SleepData> sleepData=new ArrayList<>();
 
 }

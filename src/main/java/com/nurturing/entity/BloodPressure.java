@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @lombok.Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("blood_oxygen_data")
-public class SleepData {
+@TableName("blood_pressure_data")
+public class BloodPressure {
 
     @TableId(type = IdType.AUTO)
     private long id;
@@ -25,9 +25,13 @@ public class SleepData {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime recordTime;
 
-    private BigDecimal sleepData;
+    private BigDecimal systolicBp;
 
-    public SleepData(BigDecimal sleepData) {
-        this.sleepData = sleepData;
+    private BigDecimal diastolicBp;
+
+    public BloodPressure(BigDecimal systolicBp, BigDecimal diastolicBp) {
+        this.systolicBp = systolicBp;
+        this.diastolicBp = diastolicBp;
     }
+
 }

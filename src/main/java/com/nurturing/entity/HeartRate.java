@@ -14,20 +14,20 @@ import java.time.LocalDateTime;
 @lombok.Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("blood_oxygen_data")
-public class SleepData {
+@TableName("heart_rate_data")
+public class HeartRate {
 
     @TableId(type = IdType.AUTO)
     private long id;
 
     private long userId;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH-mm-ss")
     private LocalDateTime recordTime;
 
-    private BigDecimal sleepData;
+    private BigDecimal heartData;
 
-    public SleepData(BigDecimal sleepData) {
-        this.sleepData = sleepData;
+    public HeartRate(BigDecimal heartData) {
+        this.heartData = heartData;
     }
 }
