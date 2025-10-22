@@ -2,6 +2,7 @@ package com.nurturing.Mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.nurturing.entity.BloodOxygen;
 import com.nurturing.entity.HeartRate;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -16,6 +17,9 @@ import java.util.List;
 public interface HeartRateMapper extends BaseMapper<HeartRate> {
     @Select("select  * from heart_rate_data where user_id=#{userId} order by record_time")
     List<HeartRate> getById(Long userId);
+
+    @Select("select * from heart_rate_data where user_id=#{userId} order by record_time desc limit #{limit}")
+    List<HeartRate> getRecentData(@Param("userId") Long userId, @Param("limit") Integer limit);
 
     @Insert("insert into heart_rate_data(user_id, heart_data, record_time) select user_id,#{heartData},#{recordTime} from equipment where equipment.mac=#{mac}")
     void insertByMac(@Param("heartData") BigDecimal heartData, @Param("mac") String mac, @Param("recordTime")LocalDateTime recordTime);

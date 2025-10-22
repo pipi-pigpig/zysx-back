@@ -5,7 +5,7 @@ import com.nurturing.entity.HeartRate;
 
 import java.util.List;
 
-public interface HeartRateService extends IService<HeartRate> {
+public interface HeartRateService extends HealthDataService<HeartRate> {
 
     List<HeartRate> getById(Long userId);
 

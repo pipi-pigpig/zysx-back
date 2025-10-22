@@ -18,7 +18,8 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class BloodOxygenServiceImpl extends ServiceImpl<BloodOxygenMapper,BloodOxygen> implements BloodOxygenService {
+public class BloodOxygenServiceImpl extends ServiceImpl<BloodOxygenMapper,BloodOxygen>
+        implements BloodOxygenService {
 
     @Autowired
     private BloodOxygenMapper bloodOxygenMapper;
@@ -41,23 +42,15 @@ public class BloodOxygenServiceImpl extends ServiceImpl<BloodOxygenMapper,BloodO
     public boolean save(BloodOxygen entity) {
         boolean result = super.save(entity);
         if (result) {
-            // 发布数据保存事件，触发WebSocket推送
+            // 发布血氧数据事件，触发WebSocket推送
             eventPublisher.publishEvent(new BloodOxygenDataEvent(this, entity));
         }
         return result;
     }
-
     @Override
     @Transactional
-    public boolean saveBatch(Collection<BloodOxygen> entityList) {
-        boolean result = super.saveBatch(entityList);
-        if (result && !entityList.isEmpty()) {
-            // 为每条记录发布事件
-            for (BloodOxygen entity : entityList) {
-                eventPublisher.publishEvent(new BloodOxygenDataEvent(this, entity));
-            }
-        }
-        return result;
+    public void saveHealthData(BloodOxygen entity) {
+        save(entity);
     }
 
     @Override

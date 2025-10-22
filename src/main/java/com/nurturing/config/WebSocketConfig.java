@@ -1,6 +1,9 @@
 package com.nurturing.config;
 
 import com.nurturing.Handler.BloodOxygenWebSocketHandler;
+import com.nurturing.Handler.HeartRateWebSocketHandler;
+import com.nurturing.Handler.PerfusionIndexWebSocketHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,14 +17,27 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
+    @Autowired
+    private BloodOxygenWebSocketHandler bloodOxygenWebSocketHandler;
+
+    @Autowired
+    private HeartRateWebSocketHandler heartRateWebSocketHandler;
+
+    @Autowired
+    private PerfusionIndexWebSocketHandler perfusionIndexWebSocketHandler;
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(bloodOxygenWebSocketHandler(), "/websocket/oxygen")
+        // 血氧数据WebSocket
+        registry.addHandler(bloodOxygenWebSocketHandler, "/websocket/bloodOxygen")
                 .setAllowedOrigins("*");
-    }
 
-    @Bean
-    public BloodOxygenWebSocketHandler bloodOxygenWebSocketHandler() {
-        return new BloodOxygenWebSocketHandler();
+        // 心率数据WebSocket
+        registry.addHandler(heartRateWebSocketHandler, "/websocket/heartRate")
+                .setAllowedOrigins("*");
+
+        // 灌注指数WebSocket
+        registry.addHandler(perfusionIndexWebSocketHandler, "/websocket/perfusionIndex")
+                .setAllowedOrigins("*");
     }
 }

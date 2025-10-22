@@ -5,29 +5,39 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nurturing.Service.HealthData;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @lombok.Data
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("blood_oxygen_data")
-public class BloodOxygen {
-
+public class BloodOxygen implements HealthData {
     @TableId(type = IdType.AUTO)
-    private long id;
+    private Long id;
+    private Long userId;
+    private BigDecimal oxygenData; // 血氧值
+    private Date recordTime;
 
-    private long userId;
+    @Override
+    public String getDataType() {
+        return "bloodOxygen";
+    }
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH-mm-ss")
-    private LocalDateTime recordTime;
-
-    private BigDecimal oxygenData;
+    // getter 和 setter 方法
+    @Override
+    public Long getUserId() { return userId; }
+    @Override
+    public Date getRecordTime() { return recordTime; }
 
     public BloodOxygen(BigDecimal oxygenData) {
         this.oxygenData = oxygenData;
     }
+
+    // ... 其他getter/setter
 }

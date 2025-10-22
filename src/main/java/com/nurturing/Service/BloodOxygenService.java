@@ -5,9 +5,9 @@ import com.nurturing.entity.BloodOxygen;
 
 import java.util.List;
 
-public interface BloodOxygenService extends IService<BloodOxygen> {
+public interface BloodOxygenService extends HealthDataService<BloodOxygen> {
     List<BloodOxygen> getById(Long userId);
-    List<BloodOxygen> getRecentData(Long userId);
+   // List<BloodOxygen> getRecentData(Long userId);
 
     void saveFromMQTT(BloodOxygen bloodOxygen, String mac);
 }

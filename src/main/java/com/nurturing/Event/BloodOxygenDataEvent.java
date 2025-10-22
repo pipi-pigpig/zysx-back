@@ -8,15 +8,9 @@ package com.nurturing.Event;
 import com.nurturing.entity.BloodOxygen;
 import org.springframework.context.ApplicationEvent;
 
-public class BloodOxygenDataEvent extends ApplicationEvent {
-    private final BloodOxygen bloodOxygen;
-
+// 保留原有的血氧数据事件，用于兼容性
+public class BloodOxygenDataEvent extends HealthDataEvent<BloodOxygen> {
     public BloodOxygenDataEvent(Object source, BloodOxygen bloodOxygen) {
-        super(source);
-        this.bloodOxygen = bloodOxygen;
-    }
-
-    public BloodOxygen getBloodOxygen() {
-        return bloodOxygen;
+        super(source, bloodOxygen, "bloodOxygen");
     }
 }
