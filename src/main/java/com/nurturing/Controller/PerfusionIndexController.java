@@ -25,13 +25,4 @@ public class PerfusionIndexController {
         log.info("根据id查心率: {}", user_id);
         return perfusionIndexService.getById(user_id);
     }
-
-//    @PostMapping("/api/medical/query")
-//    public void handleQuery(@RequestBody Map<String, String> request) {
-//        String question= request.get("question");
-//
-//        System.out.println("测试："+question);
-//
-//
-//    }
 }
