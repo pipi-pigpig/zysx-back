@@ -22,7 +22,7 @@ public class HeartRate implements HealthData {
     private Long id;
     private Long userId;
     private BigDecimal heartData; // 心率值
-    private Date recordTime;
+    private LocalDateTime recordTime;
 
     @Override
     public String getDataType() {
@@ -33,7 +33,7 @@ public class HeartRate implements HealthData {
     @Override
     public Long getUserId() { return userId; }
     @Override
-    public Date getRecordTime() { return recordTime; }
+    public LocalDateTime getRecordTime() { return recordTime; }
 
     // ... 其他getter/setter
 

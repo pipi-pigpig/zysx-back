@@ -1,5 +1,6 @@
 package com.nurturing.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -9,6 +10,6 @@ import java.util.Date;
  */
 public interface HealthData {
     Long getUserId();
-    Date getRecordTime();
+    LocalDateTime getRecordTime();
     String getDataType(); // 返回数据类型标识
 }

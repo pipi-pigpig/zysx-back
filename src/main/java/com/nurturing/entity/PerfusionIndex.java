@@ -23,7 +23,7 @@ public class PerfusionIndex implements HealthData {
     private Long id;
     private Long userId;
     private BigDecimal piData; // 灌注指数
-    private Date recordTime;
+    private LocalDateTime recordTime;
 
     @Override
     public String getDataType() {
@@ -34,7 +34,7 @@ public class PerfusionIndex implements HealthData {
     @Override
     public Long getUserId() { return userId; }
     @Override
-    public Date getRecordTime() { return recordTime; }
+    public LocalDateTime getRecordTime() { return recordTime; }
 
     public PerfusionIndex(BigDecimal piData) {
         this.piData = piData;
