@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nurturing.Service.HealthData;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -15,19 +16,25 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("blood_pressure_data")
-public class BloodPressure {
+public class BloodPressure implements HealthData {
 
     @TableId(type = IdType.AUTO)
     private long id;
-
     private long userId;
-
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime recordTime;
-
     private BigDecimal systolicBp;
-
     private BigDecimal diastolicBp;
+
+    @Override
+    public String getDataType() {
+        return "bloodPressure";
+    }
+
+    // getter 和 setter 方法
+    @Override
+    public Long getUserId() { return userId; }
+    @Override
+    public LocalDateTime getRecordTime() { return recordTime; }
 
     public BloodPressure(BigDecimal systolicBp, BigDecimal diastolicBp) {
         this.systolicBp = systolicBp;

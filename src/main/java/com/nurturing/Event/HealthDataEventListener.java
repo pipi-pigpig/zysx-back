@@ -1,11 +1,7 @@
 package com.nurturing.Event;
 
-import com.nurturing.Handler.BloodOxygenWebSocketHandler;
-import com.nurturing.Handler.HeartRateWebSocketHandler;
-import com.nurturing.Handler.PerfusionIndexWebSocketHandler;
-import com.nurturing.entity.BloodOxygen;
-import com.nurturing.entity.HeartRate;
-import com.nurturing.entity.PerfusionIndex;
+import com.nurturing.Handler.*;
+import com.nurturing.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -30,6 +26,15 @@ public class HealthDataEventListener {
 
     @Autowired
     private PerfusionIndexWebSocketHandler perfusionIndexWebSocketHandler;
+
+    @Autowired
+    private BloodPressureWebSocketHandler bloodPressureWebSocketHandler;
+
+    @Autowired
+    private BloodSugarWebSocketHandler bloodSugarWebSocketHandler;
+
+    @Autowired
+    private SleepDataWebSocketHandler sleepDataWebSocketHandler;
 
     // 监听血氧数据事件
     @EventListener
@@ -58,6 +63,33 @@ public class HealthDataEventListener {
         perfusionIndexWebSocketHandler.pushDataToUser(
                 String.valueOf(perfusionIndex.getUserId()),
                 Collections.singletonList(perfusionIndex)
+        );
+    }
+
+    @EventListener
+    public void handleBloodPressureDataEvent(BloodPressureDataEvent event) {
+        BloodPressure bloodPressure = event.getHealthData();
+        bloodPressureWebSocketHandler.pushDataToUser(
+                String.valueOf(bloodPressure.getUserId()),
+                Collections.singletonList(bloodPressure)
+        );
+    }
+
+    @EventListener
+    public void handleBloodSugarDataEvent(BloodSugarDataEvent event) {
+        BloodSugar bloodSugar = event.getHealthData();
+        bloodSugarWebSocketHandler.pushDataToUser(
+                String.valueOf(bloodSugar.getUserId()),
+                Collections.singletonList(bloodSugar)
+        );
+    }
+
+    @EventListener
+    public void handleSleepDataEvent(SleepDataEvent event) {
+        SleepData sleepData = event.getHealthData();
+        sleepDataWebSocketHandler.pushDataToUser(
+                String.valueOf(sleepData.getUserId()),
+                Collections.singletonList(sleepData)
         );
     }
 }

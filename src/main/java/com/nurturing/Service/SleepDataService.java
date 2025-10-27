@@ -5,7 +5,7 @@ import com.nurturing.entity.SleepData;
 
 import java.util.List;
 
-public interface SleepDataService extends IService<SleepData> {
+public interface SleepDataService extends HealthDataService<SleepData> {
     List<SleepData> getById(Long userId);
 
     void saveFromMQTT(SleepData sleepData,String mac);

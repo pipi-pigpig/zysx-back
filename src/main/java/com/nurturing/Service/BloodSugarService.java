@@ -5,7 +5,7 @@ import com.nurturing.entity.BloodSugar;
 
 import java.util.List;
 
-public interface BloodSugarService extends IService<BloodSugar> {
+public interface BloodSugarService extends HealthDataService<BloodSugar> {
     List<BloodSugar> getById(Long userId);
 
     void saveFromMQTT(BloodSugar bloodData,String mac);

@@ -2,6 +2,7 @@ package com.nurturing.Mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.nurturing.entity.BloodOxygen;
 import com.nurturing.entity.SleepData;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -17,6 +18,9 @@ public interface SleepDataMapper extends BaseMapper<SleepData> {
 
     @Select("select * from sleep_data where user_id=#{userId}")
     List<SleepData> getById(Long userId);
+
+    @Select("select * from sleep_data where user_id=#{userId} order by record_time desc limit #{limit}")
+    List<SleepData> getRecentData(@Param("userId") Long userId, @Param("limit") Integer limit);
 
     @Insert("insert into sleep_data(user_id, sleep_data, record_time) select user_id,#{sleepData},#{recordTime} from equipment where equipment.mac=#{mac}")
     void insertByMac(@Param("sleepData") BigDecimal sleepData, @Param("mac")String mac, @Param("recordTime")LocalDateTime recordTime);
