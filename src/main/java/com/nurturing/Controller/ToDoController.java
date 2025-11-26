@@ -1,7 +1,9 @@
 package com.nurturing.Controller;
 
+import com.nurturing.DTO.QueryTodoRequest;
 import com.nurturing.Service.ToDoService;
 import com.nurturing.entity.ToDo;
+import com.nurturing.entity.ToDoVo;
 import com.nurturing.result.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +28,17 @@ public class ToDoController {
 
 
     @PostMapping("/query")
-    public R fetchTodos(@RequestBody Map<String, Object> request){
+    public R fetchTodos(@RequestBody QueryTodoRequest request){
 
-        String dateString=(String) request.get("date");
-        long user_id=((Number) request.get("user_id")).longValue();
+        LocalDate startDate = LocalDate.parse(request.getStartDate());
+        List<ToDoVo> todos = toDoService.fetchToDos(startDate, request.getUserId());
+        return R.success(todos);
+    }
+    @PostMapping("/create")
+    public R create(@RequestBody ToDo toDo){
 
-        LocalDate date=null;
-        if (dateString != null && !dateString.isEmpty()){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-             date = LocalDate.parse(dateString, formatter);
-        }
-
-        List<ToDo> toDos= toDoService.fetchToDos( date, user_id);;
-
-        return R.success(toDos);
+        ToDo toDo1=toDoService.insert(toDo);
+        return R.success(toDo1);
     }
 
 }

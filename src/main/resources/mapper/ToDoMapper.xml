@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nurturing.Mapper.ToDoMapper">
+
+    <select id="getToDos" resultType="com.nurturing.entity.ToDoVo">
+        SELECT
+            tc.id,
+            tc.event_name AS eventName,
+            CASE
+                WHEN tc.todo_type = '用药计划' THEN 'medication'
+                WHEN tc.todo_type = '日常安排' THEN 'schedule'
+                END AS todoType,
+            sm.dosage,
+            tc.start_time AS startTime,
+            CASE
+                WHEN tc.todo_type = '用药计划' THEN tc.start_time
+                WHEN tc.todo_type = '日常安排' THEN sd.end_time
+                END AS endTime,
+            tc.start_date AS startDate,
+            tc.end_date AS endDate,
+            sd.location,
+            sd.remarks,
+            tc.completed
+        FROM todo_calendar tc
+                 LEFT JOIN schedule_medication sm ON tc.id = sm.todo_id
+                 LEFT JOIN schedule_daily sd ON tc.id = sd.todo_id
+        WHERE tc.user_id = #{userId}
+          AND tc.start_date = #{date}
+    </select>
+
+</mapper>

@@ -4,6 +4,7 @@ package com.nurturing.Service.impI;
 import com.nurturing.Mapper.ToDoMapper;
 import com.nurturing.Service.ToDoService;
 import com.nurturing.entity.ToDo;
+import com.nurturing.entity.ToDoVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,12 @@ public class ToDoServiceImpI implements ToDoService {
     private ToDoMapper toDoMapper;
 
     @Override
-    public List<ToDo> fetchToDos(LocalDate date, long userId) {
+    public List<ToDoVo> fetchToDos(LocalDate startDate, Long userId) {
+        return toDoMapper.getToDos(startDate, userId);
+    }
 
-
-        return toDoMapper.getToDos(date,userId);
+    @Override
+    public ToDo insert(ToDo toDo) {
+        return toDoMapper.insert(toDo);
     }
 }
