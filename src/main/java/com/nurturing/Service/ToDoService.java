@@ -1,5 +1,7 @@
 package com.nurturing.Service;
 
+import com.nurturing.DTO.CreateTodoRequest;
+import com.nurturing.DTO.UpdateTodoRequest;
 import com.nurturing.entity.ToDo;
 import com.nurturing.entity.ToDoVo;
 
@@ -10,5 +12,12 @@ import java.util.List;
 public interface ToDoService {
     List<ToDoVo> fetchToDos(LocalDate startDate, Long userId);
 
-    ToDo insert(ToDo toDo);
+
+    void createTodo(CreateTodoRequest request);
+
+    void updateTodo(Long id, UpdateTodoRequest request);
+
+    void deleteTodo(Long id);
+
+    void updateTodoStatus(Long id, Integer completed);
 }
