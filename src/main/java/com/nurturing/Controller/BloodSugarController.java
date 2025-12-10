@@ -3,10 +3,12 @@ package com.nurturing.Controller;
 
 import com.nurturing.DTO.BloodDataByDateRequest;
 import com.nurturing.DTO.BloodDataByDateResponse;
+import com.nurturing.DTO.BloodDataByWeekRequest;
 import com.nurturing.Mapper.BloodSugarMapper;
 import com.nurturing.Service.BloodSugarService;
 import com.nurturing.entity.BloodSugar;
 import com.nurturing.entity.BloodSugarRecord;
+import com.nurturing.result.R;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,5 +96,18 @@ public class BloodSugarController {
         response.setCode(code);
         response.setMessage(message);
         return response;
+    }
+
+    @PostMapping("/api/health-data-aggregated/blood-data-by-week")
+    public R getBloodDataByWeek(@Valid @RequestBody BloodDataByWeekRequest request) {
+        try {
+            List<?> data = bloodSugarService.getBloodDataByWeek(request.getUserId(), request.getDateInWeek());
+            return R.success(data);
+        } catch (DateTimeParseException e) {
+            return R.error(400, "无效的日期格式，应为YYYY-MM-DD");
+        } catch (Exception e) {
+            // 实际项目中应记录日志
+            return R.error(500, "服务器内部错误");
+        }
     }
 }

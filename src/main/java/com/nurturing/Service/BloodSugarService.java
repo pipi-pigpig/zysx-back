@@ -9,4 +9,6 @@ public interface BloodSugarService extends HealthDataService<BloodSugar> {
     List<BloodSugar> getById(Long userId);
 
     void saveFromMQTT(BloodSugar bloodData,String mac);
+
+    List<?> getBloodDataByWeek(Long userId, String dateInWeek);
 }

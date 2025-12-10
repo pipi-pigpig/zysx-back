@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nurturing.Mapper.DailyAverageDataMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="DailyAverageDataMap" type="com.nurturing.entity.DailyAverageData">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="dataType" column="data_type"/>
+        <result property="averageValue" column="average_value"/>
+        <result property="recordDate" column="record_date"/>
+    </resultMap>
+
+    <!-- 查询周血糖数据 -->
+    <select id="selectBloodSugarByWeek" resultMap="DailyAverageDataMap">
+        SELECT
+            average_value,
+            record_date
+        FROM daily_average_data
+        WHERE
+            user_id = #{userId}
+          AND data_type = 'blood_sugar'
+          AND record_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY record_date ASC
+    </select>
+</mapper>
