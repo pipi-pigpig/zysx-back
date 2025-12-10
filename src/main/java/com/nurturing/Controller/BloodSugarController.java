@@ -1,11 +1,10 @@
 package com.nurturing.Controller;
 
 
-import com.nurturing.DTO.BloodDataByDateRequest;
-import com.nurturing.DTO.BloodDataByDateResponse;
-import com.nurturing.DTO.BloodDataByWeekRequest;
+import com.nurturing.DTO.*;
 import com.nurturing.Mapper.BloodSugarMapper;
 import com.nurturing.Service.BloodSugarService;
+import com.nurturing.Service.impI.BloodSugarAggregatedService;
 import com.nurturing.entity.BloodSugar;
 import com.nurturing.entity.BloodSugarRecord;
 import com.nurturing.result.R;
@@ -35,6 +34,8 @@ public class BloodSugarController {
     @Autowired
     private BloodSugarService bloodSugarService;
 
+    @Autowired
+    private BloodSugarAggregatedService aggregatedService;
 
 //    @GetMapping("/{user_id}")
 //    public List<BloodData> getBloodData(@PathVariable long user_id) {
@@ -55,6 +56,8 @@ public class BloodSugarController {
     private final BloodSugarMapper bloodSugarMapper;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+
+    //mybatis-plus
     @PostMapping("/api/health-data-aggregated/blood-data-by-date")
     public ResponseEntity<BloodDataByDateResponse> getBloodDataByDate(
             @Valid @RequestBody BloodDataByDateRequest request) {
@@ -107,6 +110,33 @@ public class BloodSugarController {
             return R.error(400, "无效的日期格式，应为YYYY-MM-DD");
         } catch (Exception e) {
             // 实际项目中应记录日志
+            return R.error(500, "服务器内部错误");
+        }
+    }
+
+    @PostMapping("/api/health-data-aggregated/blood-data-by-month")
+    public R getBloodDataByMonth(@Valid @RequestBody BloodDataByMonthRequest request) {
+        try {
+            var data = aggregatedService.getBloodDataByMonth(
+                    request.getUserId(),
+                    request.getYear(),
+                    request.getMonth()
+            );
+            return R.success(data);
+        } catch (Exception e) {
+            return R.error(500, "服务器内部错误");
+        }
+    }
+
+    @PostMapping("/api/health-data-aggregated/blood-data-by-year")
+    public R getBloodDataByYear(@Valid @RequestBody BloodDataByYearRequest request) {
+        try {
+            var data = aggregatedService.getBloodDataByYear(
+                    request.getUserId(),
+                    request.getYear()
+            );
+            return R.success(data);
+        } catch (Exception e) {
             return R.error(500, "服务器内部错误");
         }
     }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nurturing.Mapper.MonthlyAverageDataMapper">
+
+    <resultMap id="MonthlyResultMap" type="com.nurturing.entity.MonthlyAverageData">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="dataType" column="data_type"/>
+        <result property="averageValue" column="average_value"/>
+        <result property="monthDate" column="month_date"/>
+    </resultMap>
+
+    <!-- 查询月范围 -->
+    <select id="selectBloodSugarByMonthRange" resultMap="MonthlyResultMap">
+        SELECT average_value, month_date
+        FROM monthly_average_data
+        WHERE
+            user_id = #{userId}
+          AND data_type = 'blood_sugar'
+          AND month_date BETWEEN #{startMonth} AND #{endMonth}
+        ORDER BY month_date ASC
+    </select>
+
+    <!-- 查询整年 -->
+    <select id="selectBloodSugarByYear" resultMap="MonthlyResultMap">
+        SELECT average_value, month_date
+        FROM monthly_average_data
+        WHERE
+            user_id = #{userId}
+                AND data_type = 'blood_sugar'
+                AND YEAR(month_date) = #{year}
+        ORDER BY month_date ASC
+    </select>
+</mapper>
