@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nurturing.Mapper.BloodSugarMapper">
+
+    <!-- 严格匹配数据库字段名 -->
+    <select id="selectByUserAndDate" resultType="com.nurturing.entity.BloodSugarRecord">
+        SELECT
+            blood_data AS bloodSugarValue,
+            record_time AS recordTime
+        FROM blood_sugar_data
+        WHERE
+            user_id = #{userId}
+          AND DATE(record_time) = #{date}
+        ORDER BY record_time ASC
+    </select>
+</mapper>

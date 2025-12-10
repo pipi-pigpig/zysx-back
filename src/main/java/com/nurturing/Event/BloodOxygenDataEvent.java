@@ -14,3 +14,5 @@ public class BloodOxygenDataEvent extends HealthDataEvent<BloodOxygen> {
         super(source, bloodOxygen, "bloodOxygen");
     }
 }
+
+
