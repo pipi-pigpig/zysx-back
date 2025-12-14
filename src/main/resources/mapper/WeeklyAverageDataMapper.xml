@@ -12,7 +12,7 @@
         <result property="yearValue" column="year_value"/>
     </resultMap>
 
-    <select id="selectBloodSugarByWeekRange" resultMap="WeeklyResultMap">
+    <select id="selectByWeekRange" resultMap="WeeklyResultMap">
         SELECT
             average_value,
             week_start_date,
@@ -20,7 +20,7 @@
         FROM weekly_average_data
         WHERE
             user_id = #{userId}
-          AND data_type = 'blood_sugar'
+          AND data_type = #{dataType}
           AND week_start_date BETWEEN #{startWeek} AND #{endWeek}
         ORDER BY week_start_date ASC
     </select>

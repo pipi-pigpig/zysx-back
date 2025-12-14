@@ -14,14 +14,16 @@ import java.util.List;
  */
 @Mapper
 public interface MonthlyAverageDataMapper {
-    List<MonthlyAverageData> selectBloodSugarByMonthRange(
+    List<MonthlyAverageData> selectByMonthRange(
             @Param("userId") Long userId,
             @Param("startMonth") LocalDate startMonth,
-            @Param("endMonth") LocalDate endMonth
+            @Param("endMonth") LocalDate endMonth,
+            @Param("dataType") String dataType
     );
 
-    List<MonthlyAverageData> selectBloodSugarByYear(
+    List<MonthlyAverageData> selectByYear(
             @Param("userId") Long userId,
-            @Param("year") Integer year
+            @Param("year") Integer year,
+            @Param("dataType") String dataType
     );
 }

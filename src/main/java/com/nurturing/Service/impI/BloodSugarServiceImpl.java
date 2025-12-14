@@ -42,6 +42,8 @@ public class BloodSugarServiceImpl extends ServiceImpl<BloodSugarMapper,BloodSug
     @Autowired
     private DailyAverageDataMapper dailyAverageDataMapper;
 
+    private static final String DATA_TYPE = "blood_sugar";
+
     @Override
     public List<BloodSugar> getById(Long userId) {
 
@@ -85,7 +87,7 @@ public class BloodSugarServiceImpl extends ServiceImpl<BloodSugarMapper,BloodSug
         LocalDate sunday = dateInWeek.with(DayOfWeek.SUNDAY);
 
         // 2. 查询数据库
-        List<DailyAverageData> records = dailyAverageDataMapper.selectBloodSugarByWeek(userId, monday, sunday);
+        List<DailyAverageData> records = dailyAverageDataMapper.selectByWeek(userId, monday, sunday,DATA_TYPE);
 
         // 3. 构建完整7天数据（缺失日期补null）
         Map<LocalDate, BigDecimal> recordMap = records.stream()

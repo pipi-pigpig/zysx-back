@@ -19,9 +19,10 @@ public interface DailyAverageDataMapper {
     /**
      * 查询用户指定周范围内的血糖日平均数据
      */
-    List<DailyAverageData> selectBloodSugarByWeek(
+    List<DailyAverageData> selectByWeek(
             @Param("userId") Long userId,
             @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate
+            @Param("endDate") LocalDate endDate,
+            @Param("dataType") String dataType
     );
 }

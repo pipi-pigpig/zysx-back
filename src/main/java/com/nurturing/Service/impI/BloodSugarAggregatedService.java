@@ -29,6 +29,7 @@ public class BloodSugarAggregatedService {
     private final WeeklyAverageDataMapper weeklyMapper;
     private final MonthlyAverageDataMapper monthlyMapper;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final String DATA_TYPE = "blood_sugar";
 
     /**
      * 查询月平均血糖（使用 weekly_average_data 表）
@@ -40,8 +41,8 @@ public class BloodSugarAggregatedService {
         LocalDate monthEnd = yearMonth.atEndOfMonth().with(DayOfWeek.SUNDAY);
 
         // 2. 直接查询 weekly_average_data 表
-        List<WeeklyAverageData> weeklyRecords = weeklyMapper.selectBloodSugarByWeekRange(
-                userId, monthStart, monthEnd
+        List<WeeklyAverageData> weeklyRecords = weeklyMapper.selectByWeekRange(
+                userId, monthStart, monthEnd, DATA_TYPE
         );
 
         // 3. 转换为响应格式
@@ -69,7 +70,7 @@ public class BloodSugarAggregatedService {
      */
     public List<YearMonthData> getBloodDataByYear(Long userId, Integer year) {
         // 1. 查询整年月数据
-        List<MonthlyAverageData> monthlyRecords = monthlyMapper.selectBloodSugarByYear(userId, year);
+        List<MonthlyAverageData> monthlyRecords = monthlyMapper.selectByYear(userId, year,DATA_TYPE);
 
         // 2. 转换为 Map 便于查找
         java.util.Map<String, BigDecimal> monthMap = new java.util.HashMap<>();

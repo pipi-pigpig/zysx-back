@@ -14,9 +14,10 @@ import java.util.List;
  */
 @Mapper
 public interface WeeklyAverageDataMapper {
-    List<WeeklyAverageData> selectBloodSugarByWeekRange(
+    List<WeeklyAverageData> selectByWeekRange(
             @Param("userId") Long userId,
             @Param("startWeek") LocalDate startWeek,
-            @Param("endWeek") LocalDate endWeek
+            @Param("endWeek") LocalDate endWeek,
+            @Param("dataType") String dataType
     );
 }

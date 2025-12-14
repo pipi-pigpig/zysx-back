@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nurturing.Mapper.HeartRateMapper">
+
+    <!-- 结果映射：告诉 MyBatis 如何将数据库字段映射到 Java 对象 -->
+    <resultMap id="HeartRateResultMap" type="com.nurturing.entity.HeartRate">
+        <result property="heartData" column="heart_data"/>
+        <result property="recordTime" column="record_time"/>
+    </resultMap>
+
+    <!-- 查询方法 -->
+    <select id="selectRawHeartRateByDate" resultMap="HeartRateResultMap">
+        SELECT heart_data, record_time
+        FROM heart_rate_data
+        WHERE user_id = #{userId}
+          AND DATE(record_time) = #{date}
+        ORDER BY record_time ASC
+    </select>
+</mapper>
