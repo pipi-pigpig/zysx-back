@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class BloodPressureDailyRecord {
     private Integer systolicBp;
     private Integer diastolicBp;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime recordTime;
 }
