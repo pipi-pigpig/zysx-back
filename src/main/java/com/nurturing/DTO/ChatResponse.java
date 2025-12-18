@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class QueryResponse {
+public class ChatResponse {
+    private String sessionId;
     private String answer;
-
-    // getter和setter
-    public String getAnswer() { return answer; }
-    public void setAnswer(String answer) { this.answer = answer; }
 }

@@ -13,6 +13,8 @@ import org.springframework.context.annotation.ComponentScan;
 public class ZysxApplication {
 
     public static void main(String[] args) {
+        System.setProperty("java.net.preferIPv6Addresses", "true");
+        System.setProperty("java.net.preferIPv4Stack", "false");
         SpringApplication.run(ZysxApplication.class, args);
     }
 
