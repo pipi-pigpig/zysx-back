@@ -12,12 +12,11 @@ import java.text.DecimalFormat;
 @AllArgsConstructor
 public class UserPageCenterDataDTO {
     private int id;
-    private String Username;
+    private String username;
     private String gender;
-    private int Age;
-    private String phone_number;
-    private int Weight;
-    private int Height;
+    private String phone;
+    private int weight;
+    private int height;
     private String family_history;
     private String allergy_history;
     private String past_medical_history;

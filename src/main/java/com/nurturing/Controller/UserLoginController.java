@@ -83,13 +83,12 @@ public Result<User> login(@RequestBody LoginRequest request) {
     @PostMapping("/fetchUserCenterData")
     public String fetchUserPageCenterData(@RequestBody UserPageCenterDataDTO userPageCenterDataDTO) {
 
-
         try {
             log.info("更新用户信息:{}", userPageCenterDataDTO);
             userLoginService.fetchUserPageCenterData(userPageCenterDataDTO);
             return "更新用户信息成功";
         } catch (Exception e) {
-            return "更新用户信息失败";
+            return "更新用户信息失败"+e.getMessage();
         }
 
     }
