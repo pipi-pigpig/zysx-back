@@ -11,7 +11,7 @@ import java.text.DecimalFormat;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserPageCenterDataDTO {
-    private int user_id;
+    private int id;
     private String Username;
     private String gender;
     private int Age;

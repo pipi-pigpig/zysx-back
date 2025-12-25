@@ -42,7 +42,7 @@ public class UserLoginServiceImpl implements UserLoginService {
     @Override
     public void fetchUserPageCenterData(UserPageCenterDataDTO userPageCenterDataDTO) {
 
-        int user_id = userPageCenterDataDTO.getUser_id();
+        int user_id = userPageCenterDataDTO.getId();
         String username = userPageCenterDataDTO.getUsername();
         String gender = userPageCenterDataDTO.getGender();
         int age = userPageCenterDataDTO.getAge();
