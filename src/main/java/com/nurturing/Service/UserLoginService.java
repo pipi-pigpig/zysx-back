@@ -15,7 +15,7 @@ public interface UserLoginService {
 
     void fetchUserPageCenterData(UserPageCenterDataDTO userPageCenterDataDTO);
 
-    UserPageCenterDataDTO getUserPageCenterData(Long userId);
+    User getUserById(Long userId);
 
 //    void deleteAddr(long addrId);
 }

@@ -6,16 +6,14 @@ import com.nurturing.Mapper.MonthlyAverageDataMapper;
 import com.nurturing.Mapper.WeeklyAverageDataMapper;
 import com.nurturing.Service.*;
 import com.nurturing.chat.LLMClient;
-import com.nurturing.entity.ChatSentence;
-import com.nurturing.entity.DailyAverageData;
-import com.nurturing.entity.MonthlyAverageData;
-import com.nurturing.entity.WeeklyAverageData;
+import com.nurturing.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -44,7 +42,7 @@ public class HealthReportServiceImpl implements HealthReportService {
 
         String userHealthMSG="健康档案如下：\n";
 
-        userHealthMSG+=userToString(userLoginService.getUserPageCenterData(userId));
+        userHealthMSG+=userToString(userLoginService.getUserById(userId));
 
         HashMap<String, List<DailyAverageData>> dailyAverageHashMap= new HashMap<String, List<DailyAverageData>>();
         HashMap<String, List<WeeklyAverageData>> weeklyAverageHashMap= new HashMap<String, List<WeeklyAverageData>>();
@@ -79,9 +77,9 @@ public class HealthReportServiceImpl implements HealthReportService {
     }
 
 
-    private String userToString(UserPageCenterDataDTO userPageCenterData){
-        String userMSG = "姓名："+ userPageCenterData.getUsername()+"，性别："+ userPageCenterData.getGender()+"，年龄:"+ userPageCenterData.getAge()+"岁，身高："+ userPageCenterData.getHeight()+"cm，体重："+ userPageCenterData.getWeight()+"kg。\n";
-        userMSG+=("既往病史："+ userPageCenterData.getPast_medical_history()+"。\n家族遗传病史："+ userPageCenterData.getFamily_history()+"。\n过敏史："+ userPageCenterData.getAllergy_history()+"。\n手术史："+ userPageCenterData.getSurgical_history()+"。\n用药医嘱："+ userPageCenterData.getMedical_compliance()+"。\n");
+    private String userToString(User user){
+        String userMSG = "姓名："+ user.getUsername()+"，性别："+ user.getGender()+"，年龄:"+ ChronoUnit.YEARS.between(user.getBirthDate(),LocalDate.now()) +"岁，身高："+ user.getHeight()+"cm，体重："+ user.getWeight()+"kg。\n";
+        userMSG+=("既往病史："+ user.getPastMedicalHistory()+"。\n家族遗传病史："+ user.getFamilyHistory()+"。\n过敏史："+ user.getAllergyHistory()+"。\n手术史："+ user.getSurgicalHistory()+"。\n用药医嘱："+ user.getMedicalCompliance()+"。\n");
 
         return  userMSG;
     }

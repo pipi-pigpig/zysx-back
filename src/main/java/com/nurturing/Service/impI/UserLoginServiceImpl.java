@@ -63,21 +63,8 @@ public class UserLoginServiceImpl implements UserLoginService {
     }
 
     @Override
-    public UserPageCenterDataDTO getUserPageCenterData(Long userId){
-        System.out.println("userId:"+userId);
-        User user = userLoginMapper.findByUserId(userId);
-        UserPageCenterDataDTO userPageCenterDataDTO = new UserPageCenterDataDTO();
-        userPageCenterDataDTO.setUser_id(userId);
-        userPageCenterDataDTO.setUsername(user.getUsername());
-        userPageCenterDataDTO.setGender(user.getGender());
-        userPageCenterDataDTO.setAge(LocalDateTime.now().getYear()-user.getBirthDate().getYear());
-        userPageCenterDataDTO.setHeight(user.getHeight());
-        userPageCenterDataDTO.setWeight(user.getWeight());
-        userPageCenterDataDTO.setPast_medical_history(user.getPastMedicalHistory());
-        userPageCenterDataDTO.setSurgical_history(user.getSurgicalHistory());
-        userPageCenterDataDTO.setAllergy_history(user.getAllergyHistory());
-        userPageCenterDataDTO.setMedical_compliance(user.getMedicalCompliance());
-        return userPageCenterDataDTO;
+    public User getUserById(Long userId){
+        return userLoginMapper.findByUserId(userId);
     }
 
 //    @Override
