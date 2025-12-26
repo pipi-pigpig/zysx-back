@@ -10,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Slf4j
 @Service
 public class UserLoginServiceImpl implements UserLoginService {
@@ -42,13 +45,13 @@ public class UserLoginServiceImpl implements UserLoginService {
     @Override
     public void fetchUserPageCenterData(UserPageCenterDataDTO userPageCenterDataDTO) {
 
-        int user_id = userPageCenterDataDTO.getUser_id();
+        Long user_id = userPageCenterDataDTO.getUser_id();
         String username = userPageCenterDataDTO.getUsername();
         String gender = userPageCenterDataDTO.getGender();
         int age = userPageCenterDataDTO.getAge();
         String phone_number=userPageCenterDataDTO.getPhone_number();
-        int weight = userPageCenterDataDTO.getWeight();
-        int height = userPageCenterDataDTO.getHeight();
+        BigDecimal weight = userPageCenterDataDTO.getWeight();
+        BigDecimal height = userPageCenterDataDTO.getHeight();
         String family_history=userPageCenterDataDTO.getFamily_history();
         String allergy_history=userPageCenterDataDTO.getAllergy_history();
         String past_medical_history=userPageCenterDataDTO.getPast_medical_history();
@@ -58,6 +61,24 @@ public class UserLoginServiceImpl implements UserLoginService {
         userLoginMapper.updateUsers(user_id,username,age,gender,phone_number,height,weight);
 
         userLoginMapper.updateUserHistory(user_id,family_history,allergy_history,past_medical_history,surgical_history,medical_compliance);
+    }
+
+    @Override
+    public UserPageCenterDataDTO getUserPageCenterData(Long userId){
+        System.out.println("userId:"+userId);
+        User user = userLoginMapper.findByUserId(userId);
+        UserPageCenterDataDTO userPageCenterDataDTO = new UserPageCenterDataDTO();
+        userPageCenterDataDTO.setUser_id(userId);
+        userPageCenterDataDTO.setUsername(user.getUsername());
+        userPageCenterDataDTO.setGender(user.getGender());
+        userPageCenterDataDTO.setAge(LocalDateTime.now().getYear()-user.getBirthDate().getYear());
+        userPageCenterDataDTO.setHeight(user.getHeight());
+        userPageCenterDataDTO.setWeight(user.getWeight());
+        userPageCenterDataDTO.setPast_medical_history(user.getPastMedicalHistory());
+        userPageCenterDataDTO.setSurgical_history(user.getSurgicalHistory());
+        userPageCenterDataDTO.setAllergy_history(user.getAllergyHistory());
+        userPageCenterDataDTO.setMedical_compliance(user.getMedicalCompliance());
+        return userPageCenterDataDTO;
     }
 
 //    @Override

@@ -32,4 +32,14 @@
                 AND YEAR(month_date) = #{year}
         ORDER BY month_date ASC
     </select>
+
+    <select id="selectByLatestTimes" resultMap="MonthlyResultMap">
+        SELECT average_value, month_date
+        FROM monthly_average_data
+        WHERE
+            user_id = #{userId}
+          AND data_type = #{dataType}
+        ORDER BY month_date desc
+        limit #{times}
+    </select>
 </mapper>

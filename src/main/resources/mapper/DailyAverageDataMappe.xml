@@ -23,4 +23,16 @@
           AND record_date BETWEEN #{startDate} AND #{endDate}
         ORDER BY record_date ASC
     </select>
+
+    <select id="selectByLatestTimes" resultMap="DailyAverageDataMap">
+        SELECT
+            average_value,
+            record_date
+        FROM daily_average_data
+        WHERE
+            user_id = #{userId}
+          AND data_type = #{dataType}
+        ORDER BY record_date desc
+        limit #{times}
+    </select>
 </mapper>

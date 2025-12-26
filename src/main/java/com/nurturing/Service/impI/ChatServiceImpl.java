@@ -1,8 +1,7 @@
 package com.nurturing.Service.impI;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nurturing.Service.ChatService;
-import com.nurturing.chat.ChatClient;
+import com.nurturing.chat.LLMClient;
 import com.nurturing.chat.store.ChatHistoryStore;
 import com.nurturing.entity.ChatSentence;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -23,7 +19,7 @@ public class ChatServiceImpl implements ChatService {
     private ChatHistoryStore chatHistoryStore;
 
     @Autowired
-    private ChatClient chatClient;
+    private LLMClient LLMClient;
 
     @Override
     public void setSessionId(Long userId, String sessionId) {
@@ -68,7 +64,7 @@ public class ChatServiceImpl implements ChatService {
     public SseEmitter queryStream(String sessionId, String query) throws IOException {
 
         if(sessionId==null || sessionId.isEmpty()){
-            sessionId= UUID.randomUUID().toString();
+            sessionId= "query:"+UUID.randomUUID().toString();
         }
 
         ChatSentence question =new ChatSentence("user",query);
@@ -78,6 +74,6 @@ public class ChatServiceImpl implements ChatService {
 
         history.add(question);
 
-        return chatClient.streamChat(sessionId, history);
+        return LLMClient.streamChat(sessionId, history);
     }
 }
