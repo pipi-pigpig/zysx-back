@@ -23,14 +23,17 @@ public interface UserLoginMapper {
 //    @Select("select user_addr.address,addr_id from user_addr where user_id=#{userId}")
 //    List<Address> getById(long userId);
 
-    @Update("update users set username=#{username} where user_id=#{userId} ")
+    @Update("update users set username=#{username} where id=#{userId} ")
     void updateUser(long userId, String username);
 
-    @Update("update  users set Username=#{username},Age=#{age},gender=#{gender},phone_number=#{phoneNumber},Height=#{height},Weight=#{weight} where user_id=#{userId}")
-    void updateUsers(Long userId, String username, int age, String gender, String phoneNumber, BigDecimal height, BigDecimal weight);
+    @Update("update users set Username=#{username},gender=#{gender},phone=#{phoneNumber},Height=#{height},Weight=#{weight},family_history=#{familyHistory},allergy_history=#{allergyHistory},past_medical_history=#{pastMedicalHistory},surgical_history=#{surgicalHistory},medical_compliance=#{medicalCompliance} where id=#{userId}")
+    void updateUsers(int userId, String username, String gender, String phoneNumber, int height, int weight, String familyHistory, String allergyHistory, String pastMedicalHistory, String surgicalHistory, String medicalCompliance);
 
-    @Update("update user_medical_history set family_history=#{familyHistory},allergy_history=#{allergyHistory},past_medical_history=#{pastMedicalHistory},surgical_history=#{surgicalHistory},medical_compliance=#{medicalCompliance} where user_id=#{userId}")
-    void updateUserHistory(Long userId, String familyHistory, String allergyHistory, String pastMedicalHistory, String surgicalHistory, String medicalCompliance);
+//    @Update("update  users set Username=#{username},Age=#{age},gender=#{gender},phone_number=#{phoneNumber},Height=#{height},Weight=#{weight} where id=#{userId}")
+//    void updateUsers(int userId, String username, int age, String gender, String phoneNumber, int height, int weight);
+
+//    @Update("update user_medical_history set family_history=#{familyHistory},allergy_history=#{allergyHistory},past_medical_history=#{pastMedicalHistory},surgical_history=#{surgicalHistory},medical_compliance=#{medicalCompliance} where id=#{userId}")
+//    void updateUserHistory(int userId, String familyHistory, String allergyHistory, String pastMedicalHistory, String surgicalHistory, String medicalCompliance);
 
 
 //    @Delete("delete  from user_addr where addr_id=#{addrId}")

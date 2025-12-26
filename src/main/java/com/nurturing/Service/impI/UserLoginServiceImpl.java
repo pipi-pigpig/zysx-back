@@ -45,22 +45,21 @@ public class UserLoginServiceImpl implements UserLoginService {
     @Override
     public void fetchUserPageCenterData(UserPageCenterDataDTO userPageCenterDataDTO) {
 
-        Long user_id = userPageCenterDataDTO.getUser_id();
+        int user_id = userPageCenterDataDTO.getId();
         String username = userPageCenterDataDTO.getUsername();
         String gender = userPageCenterDataDTO.getGender();
-        int age = userPageCenterDataDTO.getAge();
-        String phone_number=userPageCenterDataDTO.getPhone_number();
-        BigDecimal weight = userPageCenterDataDTO.getWeight();
-        BigDecimal height = userPageCenterDataDTO.getHeight();
+        String phone_number=userPageCenterDataDTO.getPhone();
+        int weight = userPageCenterDataDTO.getWeight();
+        int height = userPageCenterDataDTO.getHeight();
         String family_history=userPageCenterDataDTO.getFamily_history();
         String allergy_history=userPageCenterDataDTO.getAllergy_history();
         String past_medical_history=userPageCenterDataDTO.getPast_medical_history();
         String surgical_history=userPageCenterDataDTO.getSurgical_history();
         String medical_compliance=userPageCenterDataDTO.getMedical_compliance();
 
-        userLoginMapper.updateUsers(user_id,username,age,gender,phone_number,height,weight);
+        userLoginMapper.updateUsers(user_id,username,gender,phone_number,height,weight,family_history,allergy_history,past_medical_history,surgical_history,medical_compliance);
 
-        userLoginMapper.updateUserHistory(user_id,family_history,allergy_history,past_medical_history,surgical_history,medical_compliance);
+        //userLoginMapper.updateUserHistory(user_id,family_history,allergy_history,past_medical_history,surgical_history,medical_compliance);
     }
 
     @Override

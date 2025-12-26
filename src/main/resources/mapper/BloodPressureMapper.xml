@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nurturing.Mapper.BloodPressureMapper">
+
+    <resultMap id="DailyRecordMap" type="com.nurturing.DTO.BloodPressureDailyRecord">
+        <result property="systolicBp" column="systolic_bp"/>
+        <result property="diastolicBp" column="diastolic_bp"/>
+        <result property="recordTime" column="record_time"/>
+    </resultMap>
+
+    <resultMap id="WeeklyAvgMap" type="com.nurturing.DTO.BloodPressureWeeklyAverage">
+        <result property="date" column="date"/>
+        <result property="avgSystolic" column="avg_systolic"/>
+        <result property="avgDiastolic" column="avg_diastolic"/>
+    </resultMap>
+
+    <resultMap id="YearlyAvgMap" type="com.nurturing.DTO.BloodPressureYearlyAverage">
+        <result property="month" column="month"/>
+        <result property="avgSystolic" column="avg_systolic"/>
+        <result property="avgDiastolic" column="avg_diastolic"/>
+    </resultMap>
+
+    <!-- 1. 单日血压查询 -->
+    <select id="selectDailyRecords" resultMap="DailyRecordMap">
+        SELECT
+            systolic_bp,
+            diastolic_bp,
+            record_time
+        FROM blood_pressure_data
+        WHERE user_id = #{userId}
+          AND record_time &gt;= #{startDate}
+          AND record_time &lt; #{endDate}
+        ORDER BY record_time
+    </select>
+
+    <!-- 2. 周平均血压查询 -->
+    <select id="selectWeeklyAverages" resultMap="WeeklyAvgMap">
+        WITH RECURSIVE dates AS (
+            SELECT DATE(#{weekStart}) AS date
+        UNION ALL
+        SELECT DATE_ADD(date, INTERVAL 1 DAY)
+        FROM dates
+        WHERE date &lt; DATE(#{weekEnd})
+            )
+        SELECT
+            d.date AS date,
+            COALESCE(AVG(b.systolic_bp), 0) AS avg_systolic,
+            COALESCE(AVG(b.diastolic_bp), 0) AS avg_diastolic
+        FROM dates d
+            LEFT JOIN blood_pressure_data b
+        ON b.user_id = #{userId}
+            AND DATE(b.record_time) = d.date
+        GROUP BY d.date
+        ORDER BY d.date
+    </select>
+
+    <!-- 3. 月平均血压原始数据查询 -->
+    <select id="selectMonthlyRawData" resultMap="DailyRecordMap">
+        SELECT
+            systolic_bp,
+            diastolic_bp,
+            record_time
+        FROM blood_pressure_data
+        WHERE user_id = #{userId}
+          AND record_time BETWEEN #{monthStart} AND #{monthEnd}
+    </select>
+
+    <!-- 4. 年平均血压查询 -->
+    <select id="selectYearlyAverages" resultMap="YearlyAvgMap">
+        WITH RECURSIVE months AS (
+            SELECT STR_TO_DATE(CONCAT(#{year},'-01-01'), '%Y-%m-%d') AS ym
+            UNION ALL
+            SELECT DATE_ADD(ym, INTERVAL 1 MONTH)
+            FROM months
+            WHERE ym &lt; STR_TO_DATE(CONCAT(#{year},'-12-01'), '%Y-%m-%d')
+        )
+        SELECT
+            DATE_FORMAT(m.ym, '%Y-%m') AS month,
+            COALESCE(AVG(b.systolic_bp), 0) AS avg_systolic,
+            COALESCE(AVG(b.diastolic_bp), 0) AS avg_diastolic
+        FROM months m
+            LEFT JOIN blood_pressure_data b
+        ON b.user_id = #{userId}
+            AND YEAR(b.record_time) = #{year}
+            AND MONTH(b.record_time) = MONTH(m.ym)
+        GROUP BY m.ym
+        ORDER BY m.ym
+    </select>
+</mapper>

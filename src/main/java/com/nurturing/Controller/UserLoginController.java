@@ -80,19 +80,18 @@ public Result<User> login(@RequestBody LoginRequest request) {
      * 响应参数：
      * 返回成功或者失败
      */
-//    @PostMapping("/fetchUserPageCenterData")
-//    public String fetchUserPageCenterData(@RequestBody UserPageCenterDataDTO userPageCenterDataDTO) {
-//
-//
-//        try {
-//            log.info("更新用户信息:{}", userPageCenterDataDTO);
-//            userLoginService.fetchUserPageCenterData(userPageCenterDataDTO);
-//            return "更新用户信息成功";
-//        } catch (Exception e) {
-//            return "更新用户信息失败";
-//        }
-//
-//    }
+    @PostMapping("/fetchUserCenterData")
+    public String fetchUserPageCenterData(@RequestBody UserPageCenterDataDTO userPageCenterDataDTO) {
+
+        try {
+            log.info("更新用户信息:{}", userPageCenterDataDTO);
+            userLoginService.fetchUserPageCenterData(userPageCenterDataDTO);
+            return "更新用户信息成功";
+        } catch (Exception e) {
+            return "更新用户信息失败"+e.getMessage();
+        }
+
+    }
 
     @PostMapping("/fetchUserPageCenterData")
     public String fetchUserInfo(@RequestBody UserPageCenterDataDTO userPageCenterDataDTO) {

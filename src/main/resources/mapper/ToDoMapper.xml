@@ -27,7 +27,7 @@
                  LEFT JOIN schedule_medication sm ON tc.id = sm.todo_id
                  LEFT JOIN schedule_daily sd ON tc.id = sd.todo_id
         WHERE tc.user_id = #{userId}
-          AND tc.start_date = #{date}
+          AND #{date} BETWEEN tc.start_date AND tc.end_date
     </select>
 
 </mapper>
