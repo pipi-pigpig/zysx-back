@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Mapper
@@ -16,6 +17,8 @@ public interface UserLoginMapper {
     @Select("SELECT * FROM users WHERE account = #{account}")
     User findByUsername(String account);
 
+    @Select("SELECT * FROM users WHERE id = #{userId}")
+    User findByUserId(Long userId);
 
 //    @Select("select user_addr.address,addr_id from user_addr where user_id=#{userId}")
 //    List<Address> getById(long userId);

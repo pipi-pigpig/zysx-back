@@ -1,5 +1,6 @@
 package com.nurturing.Mapper;
 
+import com.nurturing.entity.DailyAverageData;
 import com.nurturing.entity.MonthlyAverageData;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -25,5 +26,14 @@ public interface MonthlyAverageDataMapper {
             @Param("userId") Long userId,
             @Param("year") Integer year,
             @Param("dataType") String dataType
+    );
+
+    /**
+     * 查询距今为止最近几次的、指定类型的周平均数据
+     */
+    List<MonthlyAverageData> selectByLatestTimes(
+            @Param("userId") Long userId,
+            @Param("dataType") String dataType,
+            @Param("times") int times
     );
 }

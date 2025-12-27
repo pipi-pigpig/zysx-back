@@ -10,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Slf4j
 @Service
 public class UserLoginServiceImpl implements UserLoginService {
@@ -57,6 +60,11 @@ public class UserLoginServiceImpl implements UserLoginService {
         userLoginMapper.updateUsers(user_id,username,gender,phone_number,height,weight,family_history,allergy_history,past_medical_history,surgical_history,medical_compliance);
 
         //userLoginMapper.updateUserHistory(user_id,family_history,allergy_history,past_medical_history,surgical_history,medical_compliance);
+    }
+
+    @Override
+    public User getUserById(Long userId){
+        return userLoginMapper.findByUserId(userId);
     }
 
 //    @Override

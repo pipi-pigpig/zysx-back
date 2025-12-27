@@ -17,12 +17,21 @@ import java.util.List;
 @Mapper
 public interface DailyAverageDataMapper {
     /**
-     * 查询用户指定周范围内的血糖日平均数据
+     * 查询用户指定周范围内、指定数据类型的日平均数据
      */
     List<DailyAverageData> selectByWeek(
             @Param("userId") Long userId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("dataType") String dataType
+    );
+
+    /**
+     * 查询距今为止最近几次的、指定类型的日平均数据
+     */
+    List<DailyAverageData> selectByLatestTimes(
+            @Param("userId") Long userId,
+            @Param("dataType") String dataType,
+            @Param("times") int times
     );
 }
