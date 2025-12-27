@@ -1,7 +1,9 @@
 package com.nurturing.Service.impI;
 
+import com.nurturing.DTO.GetHealthReportListResponse;
 import com.nurturing.DTO.UserPageCenterDataDTO;
 import com.nurturing.Mapper.DailyAverageDataMapper;
+import com.nurturing.Mapper.HealthReportMapper;
 import com.nurturing.Mapper.MonthlyAverageDataMapper;
 import com.nurturing.Mapper.WeeklyAverageDataMapper;
 import com.nurturing.Service.*;
@@ -13,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -33,6 +36,9 @@ public class HealthReportServiceImpl implements HealthReportService {
 
     @Autowired
     private MonthlyAverageDataMapper monthlyAverageDataMapper;
+
+    @Autowired
+    private HealthReportMapper healthReportMapper;
 
 
     @Override
@@ -67,13 +73,24 @@ public class HealthReportServiceImpl implements HealthReportService {
     }
 
     @Override
-    public String getHealthReport(String sessionId) {
-        return "";
+    public List<GetHealthReportListResponse> getHealthReportList(Long userId) {
+        return healthReportMapper.getHealthReportList(userId);
     }
 
     @Override
-    public void saveHealthReport(String sessionId, String healthReport) {
+    public HealthReport getHealthReport(Long healthReportId) {
+        return healthReportMapper.getHealthReport(healthReportId);
+    }
 
+    @Override
+    public void saveHealthReport(HealthReport healthReport) {
+        healthReportMapper.insertHealthReport(healthReport.getUserId(), LocalDateTime.now(), healthReport.getReport());
+        return;
+    }
+
+    @Override
+    public void deleteHealthReport(Long healthReportId) {
+        healthReportMapper.deleteHealthReport(healthReportId);
     }
 
 
