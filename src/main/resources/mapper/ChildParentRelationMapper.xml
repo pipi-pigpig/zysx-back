@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nurturing.Mapper.ChildParentRelationMapper">
+
+    <resultMap id="ChildParentRelationResultMap" type="com.nurturing.entity.ChildParentRelation">
+        <id property="id" column="id"/>
+        <result property="childId" column="child_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="relationship" column="relationship"/>
+        <result property="isPrimary" column="is_primary"/>
+        <result property="bindTime" column="bind_time"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="selectByChildIdAndParentId" resultMap="ChildParentRelationResultMap">
+        SELECT * FROM child_parent_relations
+        WHERE child_id = #{childId} AND parent_id = #{parentId}
+    </select>
+
+    <select id="selectByChildId" resultMap="ChildParentRelationResultMap">
+        SELECT * FROM child_parent_relations WHERE child_id = #{childId}
+    </select>
+
+    <insert id="insert" parameterType="com.nurturing.entity.ChildParentRelation"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO child_parent_relations (
+            child_id, parent_id, relationship, is_primary, bind_time
+        ) VALUES (
+                     #{childId}, #{parentId}, #{relationship}, #{isPrimary}, NOW()
+                 )
+    </insert>
+
+    <delete id="deleteByChildIdAndParentId">
+        DELETE FROM child_parent_relations
+        WHERE child_id = #{childId} AND parent_id = #{parentId}
+    </delete>
+
+</mapper>

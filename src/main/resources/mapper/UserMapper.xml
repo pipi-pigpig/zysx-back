@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nurturing.Mapper.UserMapper">
+
+    <resultMap id="UserResultMap" type="com.nurturing.entity.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="account" column="account"/>
+        <result property="password" column="password"/>
+        <result property="phone" column="phone"/>
+        <result property="avatar" column="avatar"/>
+        <result property="gender" column="gender"/>
+        <result property="birthDate" column="birth_date"/>
+        <result property="height" column="height"/>
+        <result property="weight" column="weight"/>
+        <result property="pastMedicalHistory" column="past_medical_history"/>
+        <result property="familyHistory" column="family_history"/>
+        <result property="allergyHistory" column="allergy_history"/>
+        <result property="surgicalHistory" column="surgical_history"/>
+        <result property="medicalCompliance" column="medical_compliance"/>
+    </resultMap>
+
+    <resultMap id="ParentInfoVOResultMap" type="com.nurturing.vo.ParentInfoVO">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="birthDate" column="birth_date"/>
+        <result property="gender" column="gender"/>
+        <result property="height" column="height"/>
+        <result property="weight" column="weight"/>
+        <result property="phone" column="phone"/>
+        <result property="avatar" column="avatar"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="UserResultMap">
+        SELECT * FROM users WHERE id = #{id}
+    </select>
+
+    <select id="selectParentsByChildId" resultMap="ParentInfoVOResultMap">
+        SELECT
+        u.id,
+        u.username,
+        u.birth_date,
+        u.gender,
+        u.height,
+        u.weight,
+        u.phone,
+        u.avatar,
+        UNIX_TIMESTAMP(cpr.bind_time) * 1000 as last_active  <!-- 使用绑定时间 -->
+        FROM users u
+        INNER JOIN child_parent_relations cpr ON u.id = cpr.parent_id
+        WHERE cpr.child_id = #{childId}
+    </select>
+
+    <insert id="insert" parameterType="com.nurturing.entity.User"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (
+            username, account, password, phone, avatar,
+            gender, birth_date, height, weight,
+            past_medical_history, family_history, allergy_history,
+            surgical_history, medical_compliance
+        ) VALUES (
+                     #{username}, #{account}, #{password}, #{phone}, #{avatar},
+                     #{gender}, #{birthDate}, #{height}, #{weight},
+                     #{pastMedicalHistory}, #{familyHistory}, #{allergyHistory},
+                     #{surgicalHistory}, #{medicalCompliance}
+                 )
+    </insert>
+
+    <update id="update" parameterType="com.nurturing.entity.User">
+        UPDATE users
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="account != null">account = #{account},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="birthDate != null">birth_date = #{birthDate},</if>
+            <if test="height != null">height = #{height},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="pastMedicalHistory != null">past_medical_history = #{pastMedicalHistory},</if>
+            <if test="familyHistory != null">family_history = #{familyHistory},</if>
+            <if test="allergyHistory != null">allergy_history = #{allergyHistory},</if>
+            <if test="surgicalHistory != null">surgical_history = #{surgicalHistory},</if>
+            <if test="medicalCompliance != null">medical_compliance = #{medicalCompliance}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM users WHERE id = #{id}
+    </delete>
+
+</mapper>

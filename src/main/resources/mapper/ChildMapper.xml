@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nurturing.Mapper.ChildMapper">
+
+    <resultMap id="ChildResultMap" type="com.nurturing.entity.Child">
+        <id property="id" column="id"/>
+        <result property="account" column="account"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="phone" column="phone"/>
+        <result property="avatar" column="avatar"/>
+        <result property="email" column="email"/>
+        <result property="gender" column="gender"/>
+        <result property="birthDate" column="birth_date"/>
+        <result property="relationship" column="relationship"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectByAccount" resultMap="ChildResultMap">
+        SELECT * FROM children WHERE account = #{account}
+    </select>
+
+    <select id="selectById" resultMap="ChildResultMap">
+        SELECT * FROM children WHERE id = #{id}
+    </select>
+
+</mapper>
