@@ -1,27 +1,35 @@
 package com.nurturing.chat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nurturing.DTO.ChatModelRequest;
+import com.nurturing.DTO.ConsultRequest;
+import com.nurturing.DTO.ReportRequest;
+import com.nurturing.DTO.MonitoringData;
+import com.nurturing.DTO.UserProfile;
 import com.nurturing.entity.ChatSentence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class LLMClient {
+    private static final Logger log = LoggerFactory.getLogger(LLMClient.class);
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
     @Value("${chat.service.url}")
     private String pythonServiceUrl;
 
@@ -29,8 +37,7 @@ public class LLMClient {
     private WebClient webClient;
 
     @Autowired
-    private ObjectMapper objectMapper; // 用于 JSON 序列化/反序列化
-
+    private ObjectMapper objectMapper;
 
     public LLMClient(WebClient webClient, ObjectMapper objectMapper) {
         this.webClient = webClient;
@@ -40,299 +47,252 @@ public class LLMClient {
     public SseEmitter streamChat(String sessionId, List<ChatSentence> messages) throws IOException {
         SseEmitter emitter = new SseEmitter(180_000L);
 
-        // 设置SSE头信息
-        emitter.onCompletion(() -> {
-            System.out.println("SSE连接完成");
-        });
+        emitter.onCompletion(() -> log.info("SSE连接完成, sessionId: {}", sessionId));
+        emitter.onTimeout(() -> log.warn("SSE连接超时, sessionId: {}", sessionId));
 
-        emitter.onTimeout(() -> {
-            System.out.println("SSE连接超时");
-        });
-
-        System.out.println("=== DEBUG START ===");
-        System.out.println("1. 开始调用Python服务: " + pythonServiceUrl);
+        log.info("开始调用Python健康咨询服务: {}, sessionId: {}", pythonServiceUrl, sessionId);
 
         try {
-            // 使用exchangeToMono获取完整响应
+            ConsultRequest request = buildConsultRequest(sessionId, messages, null);
+
             webClient.post()
-                    .uri(pythonServiceUrl+"/v1/medical_rag_stream")
-//                    .uri("http://[2409:8938:8e:f5b:b7e2:382c:9960:de43]:8001/v1/medical_rag_stream")
+                    .uri(pythonServiceUrl + "/api/v1/consult")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .header("X-Session-ID", sessionId)
-                    .header("X-Timestamp", String.valueOf(System.currentTimeMillis() / 1000))
                     .accept(MediaType.TEXT_EVENT_STREAM)
-                    .body(BodyInserters.fromValue(new ChatModelRequest(messages)))
+                    .body(BodyInserters.fromValue(request))
                     .exchangeToMono(clientResponse -> {
-                        System.out.println("2. 响应状态码: " + clientResponse.statusCode());
-//                        System.out.println("3. 响应头: " + clientResponse.headers().asHttpHeaders());
+                        log.debug("响应状态码: {}", clientResponse.statusCode());
 
                         if (clientResponse.statusCode().is2xxSuccessful()) {
-                            // 将响应体作为字符串读取
                             return clientResponse.bodyToMono(String.class);
                         } else {
                             return clientResponse.bodyToMono(String.class)
                                     .flatMap(errorBody -> {
-                                        System.out.println("4. 错误响应: " + errorBody);
-                                        return Mono.error(new RuntimeException("HTTP错误: " + clientResponse.statusCode()));
+                                        log.error("HTTP错误响应: {}", errorBody);
+                                        return Mono
+                                                .error(new RuntimeException("HTTP错误: " + clientResponse.statusCode()));
                                     });
                         }
                     })
                     .subscribe(
-                            responseBody -> {
-//                                System.out.println("5. 收到完整响应体");
-//                                System.out.println("6. 响应体长度: " + responseBody.length());
-//                                System.out.println("7. 响应体前500字符: " +
-//                                        (responseBody.length() > 500 ? responseBody.substring(0, 500) + "..." : responseBody));
-
-                                // 按行处理响应体
-                                String[] lines = responseBody.split("\n");
-//                                System.out.println("8. 总行数: " + lines.length);
-
-                                for (int i = 0; i < lines.length; i++) {
-                                    String line = lines[i];
-                                    if (line.trim().isEmpty()) {
-//                                        System.out.println("9." + i + ": 空行，跳过");
-                                        continue;
-                                    }
-
-//                                    System.out.println("10." + i + ": 处理行: " + line);
-
-                                    // 检查是否以空格开头
-                                    if (line.startsWith(" ")) {
-                                        String jsonStr = line.substring(1).trim();
-//                                        System.out.println("11." + i + ": 提取的JSON字符串: " + jsonStr);
-
-                                        if ("[DONE]".equals(jsonStr)) {
-//                                            System.out.println("12. 收到[DONE]信号");
-                                            try {
-                                                emitter.complete();
-                                            } catch (Exception e) {
-                                                // 忽略
-                                            }
-                                            break;
-                                        }
-
-                                        try {
-                                            // 解析JSON
-                                            Map<String, Object> jsonData = objectMapper.readValue(jsonStr, Map.class);
-//                                            System.out.println("13." + i + ": 解析的JSON: " + jsonData);
-
-                                            // 提取内容
-                                            List<Map<String, Object>> choices = (List<Map<String, Object>>) jsonData.get("choices");
-                                            if (choices != null && !choices.isEmpty()) {
-                                                Map<String, Object> firstChoice = choices.get(0);
-                                                Map<String, Object> delta = (Map<String, Object>) firstChoice.get("delta");
-
-                                                if (delta != null) {
-                                                    String content = (String) delta.get("content");
-//                                                    System.out.println("14." + i + ": 提取的内容: " + content);
-
-                                                    if (content != null && !content.isEmpty()) {
-                                                        // 发送给前端
-                                                        Map<String, String> sseData = Map.of(
-                                                                "sessionId", sessionId,
-                                                                "answer", content
-                                                        );
-
-                                                        try {
-                                                            emitter.send(SseEmitter.event()
-                                                                    .data(objectMapper.writeValueAsString(sseData)));
-//                                                            System.out.println("15." + i + ": 发送成功");
-                                                        } catch (IOException e) {
-                                                            System.out.println("16." + i + ": 发送失败: " + e.getMessage());
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } catch (Exception e) {
-                                            System.out.println("17." + i + ": JSON解析失败: " + e.getMessage());
-                                            System.out.println("18." + i + ": 原始JSON: " + jsonStr);
-                                        }
-                                    } else {
-//                                        System.out.println("19." + i + ": 不以空格开头，跳过");
-                                    }
-                                }
-
-                                System.out.println("20. 所有行处理完成");
-                                try {
-                                    emitter.complete();
-                                } catch (Exception e) {
-                                    // 忽略
-                                }
-                            },
+                            responseBody -> processSseResponse(responseBody, emitter, sessionId),
                             error -> {
-                                System.out.println("21. 请求失败: " + error.getMessage());
-                                error.printStackTrace();
+                                log.error("请求失败: {}", error.getMessage(), error);
                                 try {
                                     emitter.completeWithError(error);
                                 } catch (Exception e) {
-                                    // 忽略
+                                    log.debug("完成SSE时出错", e);
                                 }
-                            }
-                    );
+                            });
 
         } catch (Exception e) {
-            System.out.println("22. 构建请求失败: " + e.getMessage());
-            e.printStackTrace();
+            log.error("构建请求失败: {}", e.getMessage(), e);
             try {
                 emitter.completeWithError(e);
             } catch (Exception ex) {
-                // 忽略
+                log.debug("完成SSE时出错", ex);
             }
         }
-
-        System.out.println("=== DEBUG END ===");
 
         return emitter;
     }
 
+    private ConsultRequest buildConsultRequest(String sessionId, List<ChatSentence> messages, String userId) {
+        String requestId = UUID.randomUUID().toString();
+        String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
 
-    public SseEmitter streamGenerateHealthReport(String sessionId, List<ChatSentence> messages) throws IOException {
-        SseEmitter emitter = new SseEmitter(180_000L);
+        List<ConsultRequest.ChatMessage> chatHistory = new ArrayList<>();
+        String question = "";
 
-        // 设置SSE头信息
-        emitter.onCompletion(() -> {
-            System.out.println("SSE连接完成");
-        });
+        if (messages != null && !messages.isEmpty()) {
+            for (ChatSentence msg : messages) {
+                chatHistory.add(new ConsultRequest.ChatMessage(msg.getRole(), msg.getContent()));
+            }
+            for (int i = messages.size() - 1; i >= 0; i--) {
+                if ("user".equals(messages.get(i).getRole())) {
+                    question = messages.get(i).getContent();
+                    break;
+                }
+            }
+        }
 
-        emitter.onTimeout(() -> {
-            System.out.println("SSE连接超时");
-        });
+        ConsultRequest.ConsultBody body = new ConsultRequest.ConsultBody(
+                sessionId,
+                chatHistory,
+                question,
+                sessionId,
+                null,
+                null,
+                null);
 
-        System.out.println("=== DEBUG START ===");
-        System.out.println("1. 开始调用Python服务: " + pythonServiceUrl);
+        return new ConsultRequest(requestId, timestamp, userId, null, body);
+    }
+
+    private void processSseResponse(String responseBody, SseEmitter emitter, String sessionId) {
+        String[] lines = responseBody.split("\n");
+        String currentEventType = null;
+
+        for (String line : lines) {
+            if (line.trim().isEmpty()) {
+                continue;
+            }
+
+            if (line.startsWith("event:")) {
+                currentEventType = line.substring(6).trim();
+                continue;
+            }
+
+            if (line.startsWith("data:") && currentEventType != null) {
+                String jsonStr = line.substring(5).trim();
+
+                try {
+                    Map<String, Object> data = objectMapper.readValue(jsonStr, Map.class);
+
+                    switch (currentEventType) {
+                        case "message":
+                            handleSseMessage(data, emitter, sessionId);
+                            break;
+                        case "end":
+                            handleSseEnd(data, emitter, sessionId);
+                            break;
+                        case "error":
+                            handleSseError(data, emitter, sessionId);
+                            break;
+                        default:
+                            log.debug("未知事件类型: {}", currentEventType);
+                    }
+                } catch (Exception e) {
+                    log.error("解析SSE数据失败: {}, 原始数据: {}", e.getMessage(), jsonStr);
+                }
+            }
+        }
 
         try {
-            // 使用exchangeToMono获取完整响应
+            emitter.complete();
+        } catch (Exception e) {
+            log.debug("完成SSE时出错", e);
+        }
+    }
+
+    private void handleSseMessage(Map<String, Object> data, SseEmitter emitter, String sessionId) {
+        String content = (String) data.get("content");
+        if (content != null && !content.isEmpty()) {
+            try {
+                Map<String, String> sseData = Map.of(
+                        "sessionId", sessionId,
+                        "answer", content);
+                emitter.send(SseEmitter.event()
+                        .name("message")
+                        .data(objectMapper.writeValueAsString(sseData)));
+            } catch (IOException e) {
+                log.error("发送SSE消息失败: {}", e.getMessage());
+            }
+        }
+    }
+
+    private void handleSseEnd(Map<String, Object> data, SseEmitter emitter, String sessionId) {
+        log.info("SSE流结束, sessionId: {}, 元数据: {}", sessionId, data);
+        try {
+            Map<String, Object> sseData = Map.of(
+                    "sessionId", sessionId,
+                    "type", "end",
+                    "metadata", data);
+            emitter.send(SseEmitter.event()
+                    .name("end")
+                    .data(objectMapper.writeValueAsString(sseData)));
+        } catch (IOException e) {
+            log.error("发送SSE结束事件失败: {}", e.getMessage());
+        }
+    }
+
+    private void handleSseError(Map<String, Object> data, SseEmitter emitter, String sessionId) {
+        Integer errorCode = (Integer) data.get("error_code");
+        String errorMessage = (String) data.get("error_message");
+        log.error("SSE错误事件, sessionId: {}, 错误码: {}, 错误信息: {}", sessionId, errorCode, errorMessage);
+
+        try {
+            Map<String, Object> sseData = Map.of(
+                    "sessionId", sessionId,
+                    "type", "error",
+                    "error_code", errorCode != null ? errorCode : -1,
+                    "error_message", errorMessage != null ? errorMessage : "未知错误");
+            emitter.send(SseEmitter.event()
+                    .name("error")
+                    .data(objectMapper.writeValueAsString(sseData)));
+        } catch (IOException e) {
+            log.error("发送SSE错误事件失败: {}", e.getMessage());
+        }
+    }
+
+    public SseEmitter streamGenerateHealthReport(String sessionId, List<ChatSentence> messages) throws IOException {
+        return streamGenerateHealthReport(sessionId, messages, null, null, null);
+    }
+
+    public SseEmitter streamGenerateHealthReport(String sessionId, List<ChatSentence> messages,
+            MonitoringData monitoringData, UserProfile userProfile, String userId) throws IOException {
+        SseEmitter emitter = new SseEmitter(300_000L);
+
+        emitter.onCompletion(() -> log.info("健康报告SSE连接完成, sessionId: {}", sessionId));
+        emitter.onTimeout(() -> log.warn("健康报告SSE连接超时, sessionId: {}", sessionId));
+
+        log.info("开始调用Python健康报告服务: {}, sessionId: {}", pythonServiceUrl, sessionId);
+
+        try {
+            ReportRequest request = buildReportRequest(sessionId, monitoringData, userProfile, userId);
+
             webClient.post()
-                    .uri(pythonServiceUrl+"/v1/health_report")
-//                    .uri("http://[2409:8938:8e:f5b:b7e2:382c:9960:de43]:8001/v1/medical_rag_stream")
+                    .uri(pythonServiceUrl + "/api/v1/report")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .header("X-Session-ID", sessionId)
-                    .header("X-Timestamp", String.valueOf(System.currentTimeMillis() / 1000))
                     .accept(MediaType.TEXT_EVENT_STREAM)
-                    .body(BodyInserters.fromValue(new ChatModelRequest(messages)))
+                    .body(BodyInserters.fromValue(request))
                     .exchangeToMono(clientResponse -> {
-                        System.out.println("2. 响应状态码: " + clientResponse.statusCode());
-//                        System.out.println("3. 响应头: " + clientResponse.headers().asHttpHeaders());
+                        log.debug("响应状态码: {}", clientResponse.statusCode());
 
                         if (clientResponse.statusCode().is2xxSuccessful()) {
-                            // 将响应体作为字符串读取
                             return clientResponse.bodyToMono(String.class);
                         } else {
                             return clientResponse.bodyToMono(String.class)
                                     .flatMap(errorBody -> {
-                                        System.out.println("4. 错误响应: " + errorBody);
-                                        return Mono.error(new RuntimeException("HTTP错误: " + clientResponse.statusCode()));
+                                        log.error("HTTP错误响应: {}", errorBody);
+                                        return Mono
+                                                .error(new RuntimeException("HTTP错误: " + clientResponse.statusCode()));
                                     });
                         }
                     })
                     .subscribe(
-                            responseBody -> {
-//                                System.out.println("5. 收到完整响应体");
-//                                System.out.println("6. 响应体长度: " + responseBody.length());
-//                                System.out.println("7. 响应体前500字符: " +
-//                                        (responseBody.length() > 500 ? responseBody.substring(0, 500) + "..." : responseBody));
-
-                                // 按行处理响应体
-                                String[] lines = responseBody.split("\n");
-//                                System.out.println("8. 总行数: " + lines.length);
-
-                                for (int i = 0; i < lines.length; i++) {
-                                    String line = lines[i];
-                                    if (line.trim().isEmpty()) {
-//                                        System.out.println("9." + i + ": 空行，跳过");
-                                        continue;
-                                    }
-
-//                                    System.out.println("10." + i + ": 处理行: " + line);
-
-                                    // 检查是否以空格开头
-                                    if (line.startsWith(" ")) {
-                                        String jsonStr = line.substring(1).trim();
-//                                        System.out.println("11." + i + ": 提取的JSON字符串: " + jsonStr);
-
-                                        if ("[DONE]".equals(jsonStr)) {
-//                                            System.out.println("12. 收到[DONE]信号");
-                                            try {
-                                                emitter.complete();
-                                            } catch (Exception e) {
-                                                // 忽略
-                                            }
-                                            break;
-                                        }
-
-                                        try {
-                                            // 解析JSON
-                                            Map<String, Object> jsonData = objectMapper.readValue(jsonStr, Map.class);
-//                                            System.out.println("13." + i + ": 解析的JSON: " + jsonData);
-
-                                            // 提取内容
-                                            List<Map<String, Object>> choices = (List<Map<String, Object>>) jsonData.get("choices");
-                                            if (choices != null && !choices.isEmpty()) {
-                                                Map<String, Object> firstChoice = choices.get(0);
-                                                Map<String, Object> delta = (Map<String, Object>) firstChoice.get("delta");
-
-                                                if (delta != null) {
-                                                    String content = (String) delta.get("content");
-//                                                    System.out.println("14." + i + ": 提取的内容: " + content);
-
-                                                    if (content != null && !content.isEmpty()) {
-                                                        // 发送给前端
-                                                        Map<String, String> sseData = Map.of(
-                                                                "sessionId", sessionId,
-                                                                "answer", content
-                                                        );
-
-                                                        try {
-                                                            emitter.send(SseEmitter.event()
-                                                                    .data(objectMapper.writeValueAsString(sseData)));
-//                                                            System.out.println("15." + i + ": 发送成功");
-                                                        } catch (IOException e) {
-                                                            System.out.println("16." + i + ": 发送失败: " + e.getMessage());
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } catch (Exception e) {
-                                            System.out.println("17." + i + ": JSON解析失败: " + e.getMessage());
-                                            System.out.println("18." + i + ": 原始JSON: " + jsonStr);
-                                        }
-                                    } else {
-//                                        System.out.println("19." + i + ": 不以空格开头，跳过");
-                                    }
-                                }
-
-                                System.out.println("20. 所有行处理完成");
-                                try {
-                                    emitter.complete();
-                                } catch (Exception e) {
-                                    // 忽略
-                                }
-                            },
+                            responseBody -> processSseResponse(responseBody, emitter, sessionId),
                             error -> {
-                                System.out.println("21. 请求失败: " + error.getMessage());
-                                error.printStackTrace();
+                                log.error("请求失败: {}", error.getMessage(), error);
                                 try {
                                     emitter.completeWithError(error);
                                 } catch (Exception e) {
-                                    // 忽略
+                                    log.debug("完成SSE时出错", e);
                                 }
-                            }
-                    );
+                            });
 
         } catch (Exception e) {
-            System.out.println("22. 构建请求失败: " + e.getMessage());
-            e.printStackTrace();
+            log.error("构建请求失败: {}", e.getMessage(), e);
             try {
                 emitter.completeWithError(e);
             } catch (Exception ex) {
-                // 忽略
+                log.debug("完成SSE时出错", ex);
             }
         }
 
-        System.out.println("=== DEBUG END ===");
-
         return emitter;
+    }
+
+    private ReportRequest buildReportRequest(String sessionId, MonitoringData monitoringData, UserProfile userProfile,
+            String userId) {
+        String requestId = UUID.randomUUID().toString();
+        String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
+
+        ReportRequest.ReportBody body = new ReportRequest.ReportBody(
+                sessionId,
+                monitoringData,
+                userProfile,
+                sessionId);
+
+        return new ReportRequest(requestId, timestamp, userId, null, body);
     }
 }

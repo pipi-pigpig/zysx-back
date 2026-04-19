@@ -31,7 +31,6 @@ public class ChatServiceImpl implements ChatService {
         return "";
     }
 
-
     @Override
     public void deleteSessionId(Long userId) {
 
@@ -39,12 +38,12 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public void setQuestionHistory(String sessionId, String question) {
-        chatHistoryStore.saveQuestionHistory(sessionId,question);
+        chatHistoryStore.saveQuestionHistory(sessionId, question);
     }
 
     @Override
     public void setAnswerHistory(String sessionId, String answer) {
-        chatHistoryStore.saveAnswerHistory(sessionId,answer);
+        chatHistoryStore.saveAnswerHistory(sessionId, answer);
     }
 
     @Override
@@ -54,25 +53,21 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public void cleanHistory(String sessionId) {
-        System.out.println("clean history : "+sessionId);
+        System.out.println("clean history : " + sessionId);
         chatHistoryStore.cleanHistory(sessionId);
     }
-
-
 
     @Override
     public SseEmitter queryStream(String sessionId, String query) throws IOException {
 
-        if(sessionId==null || sessionId.isEmpty()){
-            sessionId= "query:"+UUID.randomUUID().toString();
+        if (sessionId == null || sessionId.isEmpty()) {
+            sessionId = "query:" + UUID.randomUUID().toString();
         }
 
-        ChatSentence question =new ChatSentence("user",query);
+        chatHistoryStore.saveQuestionHistory(sessionId, query);
         List<ChatSentence> history = chatHistoryStore.getHistory(sessionId);
-        System.out.println("get history : "+sessionId);
-        System.out.println("history:"+history.toString());
-
-        history.add(question);
+        System.out.println("get history : " + sessionId);
+        System.out.println("history:" + history.toString());
 
         return LLMClient.streamChat(sessionId, history);
     }

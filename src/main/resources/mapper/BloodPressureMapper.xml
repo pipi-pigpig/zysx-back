@@ -21,6 +21,24 @@
         <result property="avgDiastolic" column="avg_diastolic"/>
     </resultMap>
 
+    <resultMap id="DailyStatsMap" type="com.nurturing.DTO.BloodPressureDailyStats">
+        <result property="date" column="date"/>
+        <result property="avgSystolic" column="avg_systolic"/>
+        <result property="avgDiastolic" column="avg_diastolic"/>
+    </resultMap>
+
+    <resultMap id="WeeklyStatsMap" type="com.nurturing.DTO.BloodPressureWeeklyStats">
+        <result property="week" column="week"/>
+        <result property="avgSystolic" column="avg_systolic"/>
+        <result property="avgDiastolic" column="avg_diastolic"/>
+    </resultMap>
+
+    <resultMap id="MonthlyStatsMap" type="com.nurturing.DTO.BloodPressureMonthlyStats">
+        <result property="month" column="month"/>
+        <result property="avgSystolic" column="avg_systolic"/>
+        <result property="avgDiastolic" column="avg_diastolic"/>
+    </resultMap>
+
     <!-- 1. 单日血压查询 -->
     <select id="selectDailyRecords" resultMap="DailyRecordMap">
         SELECT
@@ -86,5 +104,41 @@
             AND MONTH(b.record_time) = MONTH(m.ym)
         GROUP BY m.ym
         ORDER BY m.ym
+    </select>
+
+    <select id="selectDailyStats" resultMap="DailyStatsMap">
+        SELECT
+            DATE(record_time) AS date,
+            AVG(systolic_bp) AS avg_systolic,
+            AVG(diastolic_bp) AS avg_diastolic
+        FROM blood_pressure_data
+        WHERE user_id = #{userId}
+        GROUP BY DATE(record_time)
+        ORDER BY date DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectWeeklyStats" resultMap="WeeklyStatsMap">
+        SELECT
+            DATE(DATE_SUB(record_time, INTERVAL WEEKDAY(record_time) DAY)) AS week,
+            AVG(systolic_bp) AS avg_systolic,
+            AVG(diastolic_bp) AS avg_diastolic
+        FROM blood_pressure_data
+        WHERE user_id = #{userId}
+        GROUP BY YEARWEEK(record_time, 1)
+        ORDER BY week DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectMonthlyStats" resultMap="MonthlyStatsMap">
+        SELECT
+            DATE_FORMAT(record_time, '%Y-%m') AS month,
+            AVG(systolic_bp) AS avg_systolic,
+            AVG(diastolic_bp) AS avg_diastolic
+        FROM blood_pressure_data
+        WHERE user_id = #{userId}
+        GROUP BY YEAR(record_time), MONTH(record_time)
+        ORDER BY month DESC
+        LIMIT #{limit}
     </select>
 </mapper>

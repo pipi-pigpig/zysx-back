@@ -3,7 +3,10 @@ package com.nurturing.Mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.nurturing.DTO.BloodPressureDailyRecord;
+import com.nurturing.DTO.BloodPressureDailyStats;
+import com.nurturing.DTO.BloodPressureMonthlyStats;
 import com.nurturing.DTO.BloodPressureWeeklyAverage;
+import com.nurturing.DTO.BloodPressureWeeklyStats;
 import com.nurturing.DTO.BloodPressureYearlyAverage;
 import com.nurturing.entity.BloodOxygen;
 import com.nurturing.entity.BloodPressure;
@@ -50,5 +53,20 @@ public interface BloodPressureMapper extends BaseMapper<BloodPressure> {
     List<BloodPressureYearlyAverage> selectYearlyAverages(
             @Param("userId") Long userId,
             @Param("year") int year
+    );
+
+    List<BloodPressureDailyStats> selectDailyStats(
+            @Param("userId") Long userId,
+            @Param("limit") Integer limit
+    );
+
+    List<BloodPressureWeeklyStats> selectWeeklyStats(
+            @Param("userId") Long userId,
+            @Param("limit") Integer limit
+    );
+
+    List<BloodPressureMonthlyStats> selectMonthlyStats(
+            @Param("userId") Long userId,
+            @Param("limit") Integer limit
     );
 }
