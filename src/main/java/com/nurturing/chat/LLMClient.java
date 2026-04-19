@@ -10,20 +10,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class LLMClient {
@@ -54,36 +60,46 @@ public class LLMClient {
 
         try {
             ConsultRequest request = buildConsultRequest(sessionId, messages, null);
+            String requestBody = objectMapper.writeValueAsString(request.getBody());
+            log.info("发送健康咨询请求, sessionId: {}, 请求体: {}", sessionId, requestBody);
+
+            AtomicReference<String> buffer = new AtomicReference<>("");
 
             webClient.post()
                     .uri(pythonServiceUrl + "/api/v1/consult")
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.TEXT_EVENT_STREAM)
-                    .body(BodyInserters.fromValue(request))
-                    .exchangeToMono(clientResponse -> {
-                        log.debug("响应状态码: {}", clientResponse.statusCode());
-
-                        if (clientResponse.statusCode().is2xxSuccessful()) {
-                            return clientResponse.bodyToMono(String.class);
-                        } else {
-                            return clientResponse.bodyToMono(String.class)
-                                    .flatMap(errorBody -> {
-                                        log.error("HTTP错误响应: {}", errorBody);
-                                        return Mono
-                                                .error(new RuntimeException("HTTP错误: " + clientResponse.statusCode()));
-                                    });
+                    .body(BodyInserters.fromValue(request.getBody()))
+                    .retrieve()
+                    .bodyToFlux(DataBuffer.class)
+                    .map(dataBuffer -> {
+                        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                        dataBuffer.read(bytes);
+                        DataBufferUtils.release(dataBuffer);
+                        return new String(bytes, StandardCharsets.UTF_8);
+                    })
+                    .concatMap(chunk -> {
+                        String currentBuffer = buffer.get();
+                        String newBuffer = currentBuffer + chunk;
+                        buffer.set(newBuffer);
+                        return processBufferedSse(newBuffer, emitter, sessionId, buffer);
+                    })
+                    .doOnComplete(() -> {
+                        try {
+                            emitter.complete();
+                        } catch (Exception e) {
+                            log.debug("完成SSE时出错", e);
                         }
                     })
-                    .subscribe(
-                            responseBody -> processSseResponse(responseBody, emitter, sessionId),
-                            error -> {
-                                log.error("请求失败: {}", error.getMessage(), error);
-                                try {
-                                    emitter.completeWithError(error);
-                                } catch (Exception e) {
-                                    log.debug("完成SSE时出错", e);
-                                }
-                            });
+                    .doOnError(error -> {
+                        log.error("请求失败: {}", error.getMessage(), error);
+                        try {
+                            emitter.completeWithError(error);
+                        } catch (Exception e) {
+                            log.debug("完成SSE时出错", e);
+                        }
+                    })
+                    .subscribe();
 
         } catch (Exception e) {
             log.error("构建请求失败: {}", e.getMessage(), e);
@@ -97,6 +113,65 @@ public class LLMClient {
         return emitter;
     }
 
+    private Flux<Void> processBufferedSse(String buffer, SseEmitter emitter, String sessionId,
+            AtomicReference<String> bufferRef) {
+        List<Void> results = new ArrayList<>();
+        String[] lines = buffer.split("\n\n", -1);
+        String remaining = "";
+
+        for (int i = 0; i < lines.length - 1; i++) {
+            String eventBlock = lines[i];
+            if (!eventBlock.trim().isEmpty()) {
+                try {
+                    processSseEventBlock(eventBlock, emitter, sessionId);
+                } catch (Exception e) {
+                    log.error("处理SSE事件块失败: {}", e.getMessage());
+                }
+            }
+        }
+
+        remaining = lines[lines.length - 1];
+        bufferRef.set(remaining);
+
+        return Flux.fromIterable(results);
+    }
+
+    private void processSseEventBlock(String eventBlock, SseEmitter emitter, String sessionId) {
+        String[] lines = eventBlock.split("\n");
+        String currentEventType = null;
+        String dataLine = null;
+
+        for (String line : lines) {
+            if (line.startsWith("event:")) {
+                currentEventType = line.substring(6).trim();
+            } else if (line.startsWith("data:")) {
+                dataLine = line.substring(5).trim();
+            }
+        }
+
+        if (currentEventType != null && dataLine != null) {
+            try {
+                Map<String, Object> data = objectMapper.readValue(dataLine, Map.class);
+
+                switch (currentEventType) {
+                    case "message":
+                        handleSseMessage(data, emitter, sessionId);
+                        break;
+                    case "end":
+                        handleSseEnd(data, emitter, sessionId);
+                        break;
+                    case "error":
+                        handleSseError(data, emitter, sessionId);
+                        break;
+                    default:
+                        log.debug("未知事件类型: {}", currentEventType);
+                }
+            } catch (Exception e) {
+                log.error("解析SSE数据失败: {}, 原始数据: {}", e.getMessage(), dataLine);
+            }
+        }
+    }
+
     private ConsultRequest buildConsultRequest(String sessionId, List<ChatSentence> messages, String userId) {
         String requestId = UUID.randomUUID().toString();
         String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
@@ -106,14 +181,22 @@ public class LLMClient {
 
         if (messages != null && !messages.isEmpty()) {
             for (ChatSentence msg : messages) {
-                chatHistory.add(new ConsultRequest.ChatMessage(msg.getRole(), msg.getContent()));
+                if (msg != null && msg.getRole() != null && msg.getContent() != null) {
+                    chatHistory.add(new ConsultRequest.ChatMessage(msg.getRole(), msg.getContent()));
+                }
             }
             for (int i = messages.size() - 1; i >= 0; i--) {
-                if ("user".equals(messages.get(i).getRole())) {
-                    question = messages.get(i).getContent();
+                ChatSentence msg = messages.get(i);
+                if (msg != null && "user".equals(msg.getRole()) && msg.getContent() != null
+                        && !msg.getContent().isEmpty()) {
+                    question = msg.getContent();
                     break;
                 }
             }
+        }
+
+        if (question == null || question.isEmpty()) {
+            question = "请提供健康咨询问题";
         }
 
         ConsultRequest.ConsultBody body = new ConsultRequest.ConsultBody(
@@ -126,52 +209,6 @@ public class LLMClient {
                 null);
 
         return new ConsultRequest(requestId, timestamp, userId, null, body);
-    }
-
-    private void processSseResponse(String responseBody, SseEmitter emitter, String sessionId) {
-        String[] lines = responseBody.split("\n");
-        String currentEventType = null;
-
-        for (String line : lines) {
-            if (line.trim().isEmpty()) {
-                continue;
-            }
-
-            if (line.startsWith("event:")) {
-                currentEventType = line.substring(6).trim();
-                continue;
-            }
-
-            if (line.startsWith("data:") && currentEventType != null) {
-                String jsonStr = line.substring(5).trim();
-
-                try {
-                    Map<String, Object> data = objectMapper.readValue(jsonStr, Map.class);
-
-                    switch (currentEventType) {
-                        case "message":
-                            handleSseMessage(data, emitter, sessionId);
-                            break;
-                        case "end":
-                            handleSseEnd(data, emitter, sessionId);
-                            break;
-                        case "error":
-                            handleSseError(data, emitter, sessionId);
-                            break;
-                        default:
-                            log.debug("未知事件类型: {}", currentEventType);
-                    }
-                } catch (Exception e) {
-                    log.error("解析SSE数据失败: {}, 原始数据: {}", e.getMessage(), jsonStr);
-                }
-            }
-        }
-
-        try {
-            emitter.complete();
-        } catch (Exception e) {
-            log.debug("完成SSE时出错", e);
-        }
     }
 
     private void handleSseMessage(Map<String, Object> data, SseEmitter emitter, String sessionId) {
@@ -239,36 +276,46 @@ public class LLMClient {
 
         try {
             ReportRequest request = buildReportRequest(sessionId, monitoringData, userProfile, userId);
+            String requestBody = objectMapper.writeValueAsString(request.getBody());
+            log.info("发送健康报告请求, sessionId: {}, 请求体: {}", sessionId, requestBody);
+
+            AtomicReference<String> buffer = new AtomicReference<>("");
 
             webClient.post()
                     .uri(pythonServiceUrl + "/api/v1/report")
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.TEXT_EVENT_STREAM)
-                    .body(BodyInserters.fromValue(request))
-                    .exchangeToMono(clientResponse -> {
-                        log.debug("响应状态码: {}", clientResponse.statusCode());
-
-                        if (clientResponse.statusCode().is2xxSuccessful()) {
-                            return clientResponse.bodyToMono(String.class);
-                        } else {
-                            return clientResponse.bodyToMono(String.class)
-                                    .flatMap(errorBody -> {
-                                        log.error("HTTP错误响应: {}", errorBody);
-                                        return Mono
-                                                .error(new RuntimeException("HTTP错误: " + clientResponse.statusCode()));
-                                    });
+                    .body(BodyInserters.fromValue(request.getBody()))
+                    .retrieve()
+                    .bodyToFlux(DataBuffer.class)
+                    .map(dataBuffer -> {
+                        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                        dataBuffer.read(bytes);
+                        DataBufferUtils.release(dataBuffer);
+                        return new String(bytes, StandardCharsets.UTF_8);
+                    })
+                    .concatMap(chunk -> {
+                        String currentBuffer = buffer.get();
+                        String newBuffer = currentBuffer + chunk;
+                        buffer.set(newBuffer);
+                        return processBufferedSse(newBuffer, emitter, sessionId, buffer);
+                    })
+                    .doOnComplete(() -> {
+                        try {
+                            emitter.complete();
+                        } catch (Exception e) {
+                            log.debug("完成SSE时出错", e);
                         }
                     })
-                    .subscribe(
-                            responseBody -> processSseResponse(responseBody, emitter, sessionId),
-                            error -> {
-                                log.error("请求失败: {}", error.getMessage(), error);
-                                try {
-                                    emitter.completeWithError(error);
-                                } catch (Exception e) {
-                                    log.debug("完成SSE时出错", e);
-                                }
-                            });
+                    .doOnError(error -> {
+                        log.error("请求失败: {}", error.getMessage(), error);
+                        try {
+                            emitter.completeWithError(error);
+                        } catch (Exception e) {
+                            log.debug("完成SSE时出错", e);
+                        }
+                    })
+                    .subscribe();
 
         } catch (Exception e) {
             log.error("构建请求失败: {}", e.getMessage(), e);
@@ -286,6 +333,13 @@ public class LLMClient {
             String userId) {
         String requestId = UUID.randomUUID().toString();
         String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
+
+        if (monitoringData == null) {
+            monitoringData = new MonitoringData();
+        }
+        if (userProfile == null) {
+            userProfile = new UserProfile();
+        }
 
         ReportRequest.ReportBody body = new ReportRequest.ReportBody(
                 sessionId,

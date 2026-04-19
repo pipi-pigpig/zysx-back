@@ -125,7 +125,7 @@
             AVG(diastolic_bp) AS avg_diastolic
         FROM blood_pressure_data
         WHERE user_id = #{userId}
-        GROUP BY YEARWEEK(record_time, 1)
+        GROUP BY DATE(DATE_SUB(record_time, INTERVAL WEEKDAY(record_time) DAY))
         ORDER BY week DESC
         LIMIT #{limit}
     </select>
@@ -137,7 +137,7 @@
             AVG(diastolic_bp) AS avg_diastolic
         FROM blood_pressure_data
         WHERE user_id = #{userId}
-        GROUP BY YEAR(record_time), MONTH(record_time)
+        GROUP BY DATE_FORMAT(record_time, '%Y-%m')
         ORDER BY month DESC
         LIMIT #{limit}
     </select>

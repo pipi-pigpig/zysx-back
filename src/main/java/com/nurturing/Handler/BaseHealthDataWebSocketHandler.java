@@ -40,6 +40,11 @@ public abstract class BaseHealthDataWebSocketHandler<T extends HealthData> exten
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String userId = getUserIdFromSession(session);
+        if (userId == null) {
+            log.warn("WebSocket连接拒绝：userId无效，数据类型: {}, session: {}", getDataType(), session.getId());
+            session.close(CloseStatus.BAD_DATA);
+            return;
+        }
         sessions.put(userId, session);
         log.info("WebSocket连接建立，用户ID: {}, 数据类型: {}, 当前连接数: {}",
                 userId, getDataType(), sessions.size());
@@ -50,13 +55,13 @@ public abstract class BaseHealthDataWebSocketHandler<T extends HealthData> exten
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String userId = getUserIdFromSession(session);
-        sessions.remove(userId);
-
-        ScheduledFuture<?> task = scheduledTasks.remove(userId);
-        if (task != null && !task.isCancelled()) {
-            task.cancel(false);
+        if (userId != null) {
+            sessions.remove(userId);
+            ScheduledFuture<?> task = scheduledTasks.remove(userId);
+            if (task != null && !task.isCancelled()) {
+                task.cancel(false);
+            }
         }
-
         log.info("WebSocket连接关闭，用户ID: {}, 数据类型: {}, 状态: {}",
                 userId, getDataType(), status);
     }
@@ -75,22 +80,31 @@ public abstract class BaseHealthDataWebSocketHandler<T extends HealthData> exten
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         String userId = getUserIdFromSession(session);
         log.error("WebSocket传输错误，用户ID: {}, 数据类型: {}", userId, getDataType(), exception);
-
-        ScheduledFuture<?> task = scheduledTasks.remove(userId);
-        if (task != null && !task.isCancelled()) {
-            task.cancel(false);
+        if (userId != null) {
+            ScheduledFuture<?> task = scheduledTasks.remove(userId);
+            if (task != null && !task.isCancelled()) {
+                task.cancel(false);
+            }
+            sessions.remove(userId);
         }
-
-        sessions.remove(userId);
     }
 
     private String getUserIdFromSession(WebSocketSession session) {
         URI uri = session.getUri();
         String query = uri.getQuery();
         if (query != null && query.contains("userId=")) {
-            return query.split("userId=")[1].split("&")[0];
+            String userId = query.split("userId=")[1].split("&")[0];
+            if (userId == null || userId.isEmpty() || "null".equalsIgnoreCase(userId)) {
+                return null;
+            }
+            try {
+                Long.valueOf(userId);
+                return userId;
+            } catch (NumberFormatException e) {
+                return null;
+            }
         }
-        return session.getId();
+        return null;
     }
 
     private void startDataPushTask(WebSocketSession session, String userId) {
