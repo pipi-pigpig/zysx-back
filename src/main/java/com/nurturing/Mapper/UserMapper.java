@@ -2,7 +2,6 @@ package com.nurturing.Mapper;
 
 import com.nurturing.entity.User;
 import com.nurturing.vo.ParentInfoVO;
-import com.nurturing.vo.ParentInfoVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
