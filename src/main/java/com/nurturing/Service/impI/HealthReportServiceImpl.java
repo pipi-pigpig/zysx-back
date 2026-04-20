@@ -192,7 +192,7 @@ public class HealthReportServiceImpl implements HealthReportService {
         }
 
         List<Object> dailyStats = new ArrayList<>();
-        List<DailyAverageData> dailyData = dailyAverageDataMapper.selectByLatestTimes(userId, "blood_flow", 30);
+        List<DailyAverageData> dailyData = dailyAverageDataMapper.selectByLatestTimes(userId, "perfusion_index", 30);
         for (DailyAverageData dad : dailyData) {
             Map<String, Object> item = new HashMap<>();
             item.put("date", dad.getRecordDate() != null ? dad.getRecordDate().format(DATE_FORMATTER) : null);
@@ -201,7 +201,7 @@ public class HealthReportServiceImpl implements HealthReportService {
         }
 
         List<Object> weeklyStats = new ArrayList<>();
-        List<WeeklyAverageData> weeklyData = weeklyAverageDataMapper.selectByLatestTimes(userId, "blood_flow", 12);
+        List<WeeklyAverageData> weeklyData = weeklyAverageDataMapper.selectByLatestTimes(userId, "perfusion_index", 12);
         for (WeeklyAverageData wad : weeklyData) {
             Map<String, Object> item = new HashMap<>();
             item.put("week", wad.getWeekStartDate() != null ? wad.getWeekStartDate().format(DATE_FORMATTER) : null);
@@ -210,7 +210,7 @@ public class HealthReportServiceImpl implements HealthReportService {
         }
 
         List<Object> monthlyStats = new ArrayList<>();
-        List<MonthlyAverageData> monthlyData = monthlyAverageDataMapper.selectByLatestTimes(userId, "blood_flow", 6);
+        List<MonthlyAverageData> monthlyData = monthlyAverageDataMapper.selectByLatestTimes(userId, "perfusion_index", 6);
         for (MonthlyAverageData mad : monthlyData) {
             Map<String, Object> item = new HashMap<>();
             item.put("month", mad.getMonthDate() != null ? mad.getMonthDate().format(DATE_FORMATTER) : null);

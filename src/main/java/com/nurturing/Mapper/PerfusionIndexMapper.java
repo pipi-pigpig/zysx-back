@@ -10,11 +10,14 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
 public interface PerfusionIndexMapper extends BaseMapper<PerfusionIndex> {
+
+    List<PerfusionIndex> selectRawPiByDate(@Param("userId") Long userId, @Param("date") LocalDate date);
     @Select("select  * from perfusion_index_data where user_id=#{userId}  order by record_time")
     List<PerfusionIndex> getById(Long userId);
 

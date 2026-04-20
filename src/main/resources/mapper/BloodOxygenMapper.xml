@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nurturing.Mapper.BloodOxygenMapper">
+
+    <resultMap id="BloodOxygenResultMap" type="com.nurturing.entity.BloodOxygen">
+        <result property="oxygenData" column="oxygen_data"/>
+        <result property="recordTime" column="record_time"/>
+    </resultMap>
+
+    <select id="selectRawOxygenByDate" resultMap="BloodOxygenResultMap">
+        SELECT oxygen_data, record_time
+        FROM blood_oxygen_data
+        WHERE user_id = #{userId}
+          AND DATE(record_time) = #{date}
+        ORDER BY record_time ASC
+    </select>
+</mapper>

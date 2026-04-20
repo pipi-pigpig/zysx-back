@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,4 +25,5 @@ public interface BloodOxygenMapper extends BaseMapper<BloodOxygen> {
     @Insert("insert into blood_oxygen_data(user_id, oxygen_data, record_time) select user_id,#{oxygenData}, #{recordTime} from equipment where equipment.mac=#{mac}")
     void insertByMac(@Param("oxygenData") BigDecimal oxygenData, @Param("mac") String mac, @Param("recordTime")LocalDateTime recordTime);
 
+    List<BloodOxygen> selectRawOxygenByDate(@Param("userId") Long userId, @Param("date") LocalDate date);
 }

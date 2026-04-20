@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,4 +25,6 @@ public interface SleepDataMapper extends BaseMapper<SleepData> {
 
     @Insert("insert into sleep_data(user_id, sleep_data, record_time) select user_id,#{sleepData},#{recordTime} from equipment where equipment.mac=#{mac}")
     void insertByMac(@Param("sleepData") BigDecimal sleepData, @Param("mac")String mac, @Param("recordTime")LocalDateTime recordTime);
+
+    List<SleepData> selectRawSleepByDate(@Param("userId") Long userId, @Param("date") LocalDate date);
 }
